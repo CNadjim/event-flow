@@ -1,0 +1,35 @@
+server:
+  port: 8090
+
+springdoc:
+  swagger-ui:
+    use-root-path: true
+
+spring:
+  application:
+    name: sample-application
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: sample-application-database
+      username: root
+      password: root
+      authentication-database: admin
+
+event-flow:
+  kafka:
+    hostname: localhost
+    port: 9092
+  mongo:
+    username: root
+    password: root
+    authentication-database: admin
+    hostname: localhost
+    port: 27017
+
+logging:
+  level:
+    org.springframework.context.support: ERROR
+    org.mongodb: ERROR
+    org.apache.kafka: ERROR

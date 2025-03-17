@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>io.github.cnadjim</groupId>
+    <artifactId>event-flow</artifactId>
+    <version>1.0</version>
+    <packaging>pom</packaging>
+
+    <modules>
+        <module>event-flow-core</module>
+        <module>event-flow-spring-boot-starter</module>
+        <module>event-flow-spring-boot-sample</module>
+        <module>event-flow-spring-boot-kafka-starter</module>
+        <module>event-flow-spring-boot-mongo-starter</module>
+        <module>event-flow-spring-boot-rabbitmq-starter</module>
+    </modules>
+
+    <developers>
+        <developer>
+            <name>Chabane Nadjim</name>
+            <email>c.nadjim@gmail.com</email>
+            <url>https://cnadjim.github.io</url>
+        </developer>
+    </developers>
+
+    <properties>
+
+        <kafka.version>3.9.0</kafka.version>
+        <lombok.version>1.18.34</lombok.version>
+        <jackson.version>2.18.3</jackson.version>
+        <spring-boot.version>3.4.3</spring-boot.version>
+
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+</project>
