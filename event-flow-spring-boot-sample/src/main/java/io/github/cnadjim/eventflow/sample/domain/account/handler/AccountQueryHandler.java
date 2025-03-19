@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.sample.domain.account.handler;
 
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleQuery;
+import io.github.cnadjim.eventflow.annotation.HandleQuery;
 import io.github.cnadjim.eventflow.sample.domain.account.entity.MongoAccountEntity;
 import io.github.cnadjim.eventflow.sample.domain.account.exception.AccountNotFoundException;
 import io.github.cnadjim.eventflow.sample.domain.account.query.FindAccountQuery;

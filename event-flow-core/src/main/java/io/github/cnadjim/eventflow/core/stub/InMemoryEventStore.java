@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.stub;
 
-import io.github.cnadjim.eventflow.core.ddd.Stub;
+import io.github.cnadjim.eventflow.annotation.Stub;
 import io.github.cnadjim.eventflow.core.domain.Event;
 import org.apache.commons.collections.CollectionUtils;
 import io.github.cnadjim.eventflow.core.spi.EventStore;

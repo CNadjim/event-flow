@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.supplier;
 
-import io.github.cnadjim.eventflow.core.domain.annotation.Topic;
+import io.github.cnadjim.eventflow.annotation.Topic;
 
 import java.util.Optional;
 

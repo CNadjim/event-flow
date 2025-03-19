@@ -1,6 +1,6 @@
 package io.github.cnadjim.evenflow.core.domain;
 
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleEvent;
+import io.github.cnadjim.eventflow.annotation.HandleEvent;
 
 public class CustomerEventHandler {
 

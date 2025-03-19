@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.stub;
 
-import io.github.cnadjim.eventflow.core.ddd.Stub;
+import io.github.cnadjim.eventflow.annotation.Stub;
 import io.github.cnadjim.eventflow.core.domain.exception.handler.HandlerNotFoundException;
 import io.github.cnadjim.eventflow.core.domain.handler.*;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;

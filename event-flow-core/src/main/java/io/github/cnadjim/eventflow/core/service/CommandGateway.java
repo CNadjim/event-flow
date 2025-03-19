@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.core.api.SendCommand;
-import io.github.cnadjim.eventflow.core.ddd.DomainService;
+import io.github.cnadjim.eventflow.annotation.DomainService;
 import io.github.cnadjim.eventflow.core.domain.Aggregate;
 import io.github.cnadjim.eventflow.core.domain.Command;
 import io.github.cnadjim.eventflow.core.domain.Event;

@@ -1,9 +1,9 @@
 package io.github.cnadjim.eventflow.sample.domain.account.aggregate;
 
-import io.github.cnadjim.eventflow.core.domain.annotation.Aggregate;
-import io.github.cnadjim.eventflow.core.domain.annotation.AggregateId;
-import io.github.cnadjim.eventflow.core.domain.annotation.ApplyEvent;
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleCommand;
+import io.github.cnadjim.eventflow.annotation.Aggregate;
+import io.github.cnadjim.eventflow.annotation.AggregateId;
+import io.github.cnadjim.eventflow.annotation.ApplyEvent;
+import io.github.cnadjim.eventflow.annotation.HandleCommand;
 import io.github.cnadjim.eventflow.sample.domain.account.command.CreateAccountCommand;
 import io.github.cnadjim.eventflow.sample.domain.account.command.DeleteAccountCommand;
 import io.github.cnadjim.eventflow.sample.domain.account.command.UpdateAccountBirthDateCommand;

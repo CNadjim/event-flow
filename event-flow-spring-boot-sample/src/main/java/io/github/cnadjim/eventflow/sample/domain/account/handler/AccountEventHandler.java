@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.sample.domain.account.handler;
 
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleEvent;
+import io.github.cnadjim.eventflow.annotation.HandleEvent;
 import io.github.cnadjim.eventflow.sample.domain.account.entity.MongoAccountEntity;
 import io.github.cnadjim.eventflow.sample.domain.account.event.AccountBirthDateUpdatedEvent;
 import io.github.cnadjim.eventflow.sample.domain.account.event.AccountCreatedEvent;

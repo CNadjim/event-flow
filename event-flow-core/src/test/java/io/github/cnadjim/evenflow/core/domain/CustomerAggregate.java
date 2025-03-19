@@ -1,9 +1,9 @@
 package io.github.cnadjim.evenflow.core.domain;
 
-import io.github.cnadjim.eventflow.core.domain.annotation.Aggregate;
-import io.github.cnadjim.eventflow.core.domain.annotation.AggregateId;
-import io.github.cnadjim.eventflow.core.domain.annotation.ApplyEvent;
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleCommand;
+import io.github.cnadjim.eventflow.annotation.Aggregate;
+import io.github.cnadjim.eventflow.annotation.AggregateId;
+import io.github.cnadjim.eventflow.annotation.ApplyEvent;
+import io.github.cnadjim.eventflow.annotation.HandleCommand;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowIllegalArgumentException;
 
 import static io.github.cnadjim.evenflow.core.domain.CustomerCommand.CreateCustomerCommand;

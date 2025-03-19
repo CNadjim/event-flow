@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.core.api.SendEvent;
-import io.github.cnadjim.eventflow.core.ddd.DomainService;
+import io.github.cnadjim.eventflow.annotation.DomainService;
 import io.github.cnadjim.eventflow.core.domain.Event;
 import io.github.cnadjim.eventflow.core.domain.handler.EventHandler;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
