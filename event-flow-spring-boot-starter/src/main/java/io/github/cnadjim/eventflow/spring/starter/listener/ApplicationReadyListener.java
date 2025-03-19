@@ -1,8 +1,8 @@
 package io.github.cnadjim.eventflow.spring.starter.listener;
 
 import io.github.cnadjim.eventflow.core.api.RegisterHandler;
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleEvent;
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleQuery;
+import io.github.cnadjim.eventflow.annotation.HandleEvent;
+import io.github.cnadjim.eventflow.annotation.HandleQuery;
 import io.github.cnadjim.eventflow.core.domain.handler.EventHandler;
 import io.github.cnadjim.eventflow.core.domain.handler.QueryHandler;
 import io.github.cnadjim.eventflow.core.spi.EventSubscriber;

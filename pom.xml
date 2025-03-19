@@ -10,12 +10,13 @@
     <packaging>pom</packaging>
 
     <modules>
+        <module>event-flow-annotation</module>
+        <module>event-flow-annotation-processor</module>
         <module>event-flow-core</module>
         <module>event-flow-spring-boot-starter</module>
-        <module>event-flow-spring-boot-sample</module>
         <module>event-flow-spring-boot-kafka-starter</module>
         <module>event-flow-spring-boot-mongo-starter</module>
-        <module>event-flow-spring-boot-rabbitmq-starter</module>
+        <module>event-flow-spring-boot-sample</module>
     </modules>
 
     <developers>
@@ -27,7 +28,6 @@
     </developers>
 
     <properties>
-
         <kafka.version>3.9.0</kafka.version>
         <lombok.version>1.18.34</lombok.version>
         <jackson.version>2.18.3</jackson.version>

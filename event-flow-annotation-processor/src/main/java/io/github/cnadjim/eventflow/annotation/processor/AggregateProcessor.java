@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.core.domain.annotation;
+package io.github.cnadjim.eventflow.annotation.processor;
 
 
 import javax.annotation.processing.*;
@@ -17,8 +17,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@SupportedAnnotationTypes("io.github.cnadjim.eventflow.core.domain.annotation.Aggregate")
 @SupportedSourceVersion(SourceVersion.RELEASE_17)
+@SupportedAnnotationTypes("io.github.cnadjim.eventflow.annotation.Aggregate")
 public class AggregateProcessor extends AbstractProcessor {
 
     private Elements elementUtils;

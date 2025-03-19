@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.core.ddd;
+package io.github.cnadjim.eventflow.annotation;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

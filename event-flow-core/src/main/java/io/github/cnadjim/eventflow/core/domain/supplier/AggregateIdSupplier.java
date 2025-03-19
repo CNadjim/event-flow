@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.supplier;
 
-import io.github.cnadjim.eventflow.core.domain.annotation.AggregateId;
+import io.github.cnadjim.eventflow.annotation.AggregateId;
 
 import java.lang.reflect.Field;
 import java.util.Optional;

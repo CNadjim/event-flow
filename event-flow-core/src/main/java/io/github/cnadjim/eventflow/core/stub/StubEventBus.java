@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.core.api.SendEvent;
-import io.github.cnadjim.eventflow.core.ddd.Stub;
+import io.github.cnadjim.eventflow.annotation.Stub;
 import io.github.cnadjim.eventflow.core.domain.Event;
 import io.github.cnadjim.eventflow.core.spi.EventPublisher;
 import io.github.cnadjim.eventflow.core.spi.EventSubscriber;

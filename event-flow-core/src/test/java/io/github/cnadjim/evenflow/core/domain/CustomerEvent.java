@@ -1,7 +1,7 @@
 package io.github.cnadjim.evenflow.core.domain;
 
-import io.github.cnadjim.eventflow.core.domain.annotation.AggregateId;
-import io.github.cnadjim.eventflow.core.domain.annotation.Topic;
+import io.github.cnadjim.eventflow.annotation.AggregateId;
+import io.github.cnadjim.eventflow.annotation.Topic;
 
 
 @Topic("events.customer")

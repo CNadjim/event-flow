@@ -1,11 +1,11 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.core.api.RegisterHandler;
-import io.github.cnadjim.eventflow.core.ddd.DomainService;
-import io.github.cnadjim.eventflow.core.domain.annotation.ApplyEvent;
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleCommand;
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleEvent;
-import io.github.cnadjim.eventflow.core.domain.annotation.HandleQuery;
+import io.github.cnadjim.eventflow.annotation.DomainService;
+import io.github.cnadjim.eventflow.annotation.ApplyEvent;
+import io.github.cnadjim.eventflow.annotation.HandleCommand;
+import io.github.cnadjim.eventflow.annotation.HandleEvent;
+import io.github.cnadjim.eventflow.annotation.HandleQuery;
 import io.github.cnadjim.eventflow.core.domain.exception.ScanPackageExecutionException;
 import io.github.cnadjim.eventflow.core.domain.handler.*;
 import io.github.cnadjim.eventflow.core.domain.supplier.MessageTypeSupplier;

@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.core.api.SendQuery;
-import io.github.cnadjim.eventflow.core.ddd.DomainService;
+import io.github.cnadjim.eventflow.annotation.DomainService;
 import io.github.cnadjim.eventflow.core.domain.Query;
 import io.github.cnadjim.eventflow.core.domain.ResponseType;
 import io.github.cnadjim.eventflow.core.domain.handler.QueryHandler;

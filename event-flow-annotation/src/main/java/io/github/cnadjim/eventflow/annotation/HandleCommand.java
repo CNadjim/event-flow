@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.core.domain.annotation;
+package io.github.cnadjim.eventflow.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -7,5 +7,5 @@ import java.lang.annotation.Target;
 
 @Target(ElementType.METHOD)
 @Retention(RetentionPolicy.RUNTIME)
-public @interface HandleEvent {
+public @interface HandleCommand {
 }
