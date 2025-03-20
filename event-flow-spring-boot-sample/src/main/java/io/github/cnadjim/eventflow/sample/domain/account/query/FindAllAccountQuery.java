@@ -1,4 +1,4 @@
 package io.github.cnadjim.eventflow.sample.domain.account.query;
 
-public record FindAllAccountQuery() {
+public record FindAllAccountQuery() implements AccountQuery {
 }

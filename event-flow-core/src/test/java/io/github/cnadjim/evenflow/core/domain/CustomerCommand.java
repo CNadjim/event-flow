@@ -2,14 +2,17 @@ package io.github.cnadjim.evenflow.core.domain;
 
 
 import io.github.cnadjim.eventflow.annotation.AggregateId;
-import io.github.cnadjim.eventflow.annotation.Topic;
 
-@Topic("commands.customer")
+import java.time.LocalDate;
+
 public interface CustomerCommand  {
 
     record CreateCustomerCommand(@AggregateId String id, String name) implements CustomerCommand {
     }
 
     record UpdateCustomerNameCommand(@AggregateId String id, String newName) implements CustomerCommand {
+    }
+
+    record UpdateCustomerBirthdayCommand(@AggregateId String id, LocalDate newBirthDay) implements CustomerCommand {
     }
 }

@@ -1,10 +1,10 @@
 package io.github.cnadjim.eventflow.core.spi;
 
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 
 import java.util.List;
 
 public interface EventPublisher {
-    void publish(Event event);
-    void publishAll(List<Event> events);
+    void publish(EventWrapper event);
+    void publishAll(List<EventWrapper> events);
 }

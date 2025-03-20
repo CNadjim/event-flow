@@ -5,6 +5,6 @@ import jakarta.validation.constraints.NotBlank;
 
 import java.time.LocalDate;
 
-public record AccountCreationRequest(@Email String email, @NotBlank String password, String pseudonym, LocalDate birthDate) {
+public record CreateAccountRequest(@Email String email, @NotBlank String password, String pseudonym, LocalDate birthDate) {
 
 }

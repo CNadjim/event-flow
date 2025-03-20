@@ -1,18 +1,14 @@
 package io.github.cnadjim.eventflow.core.service;
 
+import io.github.cnadjim.eventflow.annotation.*;
 import io.github.cnadjim.eventflow.core.api.RegisterHandler;
-import io.github.cnadjim.eventflow.annotation.DomainService;
-import io.github.cnadjim.eventflow.annotation.ApplyEvent;
-import io.github.cnadjim.eventflow.annotation.HandleCommand;
-import io.github.cnadjim.eventflow.annotation.HandleEvent;
-import io.github.cnadjim.eventflow.annotation.HandleQuery;
 import io.github.cnadjim.eventflow.core.domain.exception.ScanPackageExecutionException;
-import io.github.cnadjim.eventflow.core.domain.handler.*;
-import io.github.cnadjim.eventflow.core.domain.supplier.MessageTypeSupplier;
-import io.github.cnadjim.eventflow.core.domain.supplier.TopicSupplier;
+import io.github.cnadjim.eventflow.core.domain.handler.CommandHandler;
+import io.github.cnadjim.eventflow.core.domain.handler.EventHandler;
+import io.github.cnadjim.eventflow.core.domain.handler.EventSourcingHandler;
+import io.github.cnadjim.eventflow.core.domain.handler.QueryHandler;
 import io.github.cnadjim.eventflow.core.spi.EventSubscriber;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
-import io.github.cnadjim.eventflow.core.spi.TopicRegistry;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,28 +23,22 @@ import java.util.Optional;
 
 @DomainService
 public class HandlerService implements RegisterHandler {
-    private final TopicRegistry topicRegistry;
-    private final HandlerRegistry handlerRegistry;
     private final EventSubscriber eventSubscriber;
+    private final HandlerRegistry handlerRegistry;
 
-    public HandlerService(TopicRegistry topicRegistry, HandlerRegistry handlerRegistry, EventSubscriber eventSubscriber) {
-        this.topicRegistry = topicRegistry;
+    public HandlerService(EventSubscriber eventSubscriber, HandlerRegistry handlerRegistry) {
         this.eventSubscriber = eventSubscriber;
         this.handlerRegistry = handlerRegistry;
     }
 
     @Override
     public void registerCommandHandler(Class<?> messagePayloadClass, CommandHandler commandHandler) {
-        final String commandTopic = TopicSupplier.findTopic(messagePayloadClass).orElseGet(messagePayloadClass::getName);
-        topicRegistry.addTopic(MessageTypeSupplier.MessageType.COMMAND, commandTopic);
         handlerRegistry.registerHandler(messagePayloadClass, commandHandler);
     }
 
     @Override
     public void registerEventHandler(Class<?> messagePayloadClass, EventHandler eventHandler) {
-        final String eventTopic = TopicSupplier.findTopic(messagePayloadClass).orElseGet(messagePayloadClass::getName);
-        topicRegistry.addTopic(MessageTypeSupplier.MessageType.EVENT, eventTopic);
-        eventSubscriber.subscribe(eventTopic);
+        eventSubscriber.subscribe(messagePayloadClass.getSimpleName());
         handlerRegistry.registerHandler(messagePayloadClass, eventHandler);
     }
 
@@ -59,21 +49,37 @@ public class HandlerService implements RegisterHandler {
 
     @Override
     public void registerEventSourcingHandler(Class<?> messagePayloadClass, EventSourcingHandler eventSourcingHandler) {
+        eventSubscriber.subscribe(messagePayloadClass.getSimpleName());
         handlerRegistry.registerHandler(messagePayloadClass, eventSourcingHandler);
     }
 
     @Override
-    public void registerEventHandler(Object eventHandlerInstance) {
-        final Class<?> clazz = eventHandlerInstance.getClass();
+    public void scanInstance(Object instance) {
+        if (instance == null) {
+            return;
+        }
+
+        final Class<?> clazz = instance.getClass();
         for (Method method : clazz.getDeclaredMethods()) {
             if (method.isAnnotationPresent(HandleEvent.class)) {
                 Class<?> eventType = method.getParameterTypes()[0];
-                EventHandler eventHandler = EventHandler.create(eventHandlerInstance, method);
+                EventHandler eventHandler = EventHandler.create(instance, method);
                 registerEventHandler(eventType, eventHandler);
+            } else if (method.isAnnotationPresent(HandleQuery.class)) {
+                Class<?> eventType = method.getParameterTypes()[0];
+                QueryHandler queryHandler = QueryHandler.create(instance, method);
+                registerQueryHandler(eventType, queryHandler);
+            } else if (method.isAnnotationPresent(HandleCommand.class)) {
+                Class<?> eventType = method.getParameterTypes()[0];
+                CommandHandler commandHandler = CommandHandler.create(instance, method);
+                registerCommandHandler(eventType, commandHandler);
+            } else if(method.isAnnotationPresent(ApplyEvent.class)) {
+                Class<?> eventType = method.getParameterTypes()[0];
+                EventSourcingHandler eventSourcingHandler = EventSourcingHandler.create(instance, method);
+                registerEventSourcingHandler(eventType, eventSourcingHandler);
             }
         }
     }
-
 
     @Override
     public void scanPackage(String packageName) {
@@ -94,7 +100,6 @@ public class HandlerService implements RegisterHandler {
             throw new RuntimeException("Package scan failed", e);
         }
     }
-
 
     private void processDirectory(String pkg, File directory) {
         File[] files = directory.listFiles();
@@ -121,7 +126,6 @@ public class HandlerService implements RegisterHandler {
             throw new ScanPackageExecutionException(exception);
         }
     }
-
 
     private void registerQueryHandlers(Class<?> clazz) {
         for (Method method : clazz.getDeclaredMethods()) {

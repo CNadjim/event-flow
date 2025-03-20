@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.sample.config;
+package io.github.cnadjim.eventflow.spring.mongo.starter.config;
 
 import com.mongodb.MongoClientSettings;
 import com.mongodb.MongoCredential;
@@ -7,10 +7,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.mongo.MongoProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.SimpleMongoClientDatabaseFactory;
@@ -18,17 +15,15 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 import static java.util.Collections.singletonList;
 
-@Configuration
-@EnableConfigurationProperties
-@EnableMongoRepositories(
-        basePackages = "io.github.cnadjim.eventflow.sample.repository",
-        mongoTemplateRef = "applicationMongoTemplate"
-)
-public class MongoConfiguration {
 
-    @Primary
-    @Bean(name = "applicationMongoClient")
-    public MongoClient mongoClient(MongoProperties mongoProperties) {
+@EnableMongoRepositories(
+        basePackages = "io.github.cnadjim.eventflow.spring.mongo.starter.repository",
+        mongoTemplateRef = "eventFlowMongoTemplate"
+)
+public class EventFlowMongoConfiguration {
+
+    @Bean(name = "eventFlowMongoTemplateMongoClient")
+    public MongoClient mongoClient(final MongoProperties mongoProperties) {
 
         final MongoCredential credential = MongoCredential
                 .createCredential(
@@ -44,17 +39,13 @@ public class MongoConfiguration {
                 .build());
     }
 
-    @Primary
-    @Bean(name = "applicationMongoDBFactory")
-    public MongoDatabaseFactory mongoDatabaseFactory(
-            final MongoProperties mongoProperties,
-            @Qualifier("applicationMongoClient") MongoClient mongoClient) {
-        return new SimpleMongoClientDatabaseFactory(mongoClient, mongoProperties.getDatabase());
+    @Bean(name = "eventFlowMongoDBFactory")
+    public MongoDatabaseFactory mongoDatabaseFactory(@Qualifier("eventFlowMongoTemplateMongoClient") final MongoClient mongoClient) {
+        return new SimpleMongoClientDatabaseFactory(mongoClient, "event-flow-database");
     }
 
-    @Primary
-    @Bean(name = "applicationMongoTemplate")
-    public MongoTemplate mongoTemplate(@Qualifier("applicationMongoDBFactory") MongoDatabaseFactory mongoDatabaseFactory) {
+    @Bean(name = "eventFlowMongoTemplate")
+    public MongoTemplate mongoTemplate(@Qualifier("eventFlowMongoDBFactory") final MongoDatabaseFactory mongoDatabaseFactory) {
         return new MongoTemplate(mongoDatabaseFactory);
     }
 }

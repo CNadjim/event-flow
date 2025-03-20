@@ -2,7 +2,7 @@ package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.core.api.SendEvent;
 import io.github.cnadjim.eventflow.annotation.Stub;
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 import io.github.cnadjim.eventflow.core.spi.EventPublisher;
 import io.github.cnadjim.eventflow.core.spi.EventSubscriber;
 
@@ -36,15 +36,15 @@ public class StubEventBus implements EventPublisher, EventSubscriber {
     }
 
     @Override
-    public void publish(Event event) {
+    public void publish(EventWrapper event) {
         if (subscribedTopics.contains(event.topic())) {
             sendEvent.send(event);
         }
     }
 
     @Override
-    public void publishAll(List<Event> events) {
-        for (Event event : events) {
+    public void publishAll(List<EventWrapper> events) {
+        for (EventWrapper event : events) {
             publish(event);
         }
     }

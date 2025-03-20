@@ -5,6 +5,6 @@ import org.springframework.http.HttpStatus;
 
 public class AccountAlreadyExistException extends RestException {
     public AccountAlreadyExistException(String email) {
-        super(HttpStatus.CONFLICT, String.format("A Account is already registered with email : : %s", email));
+        super(HttpStatus.CONFLICT, String.format("A Account is already registered with email : %s", email));
     }
 }

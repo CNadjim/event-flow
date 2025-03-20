@@ -17,7 +17,7 @@ public class SpringPageResponseType<T> implements ResponseType<Page<T>> {
 
     @Override
     @SuppressWarnings("unchecked")
-    public Class<Page<T>> responseMessagePayloadType() {
+    public Class<Page<T>> type() {
         return (Class<Page<T>>) (Class<?>) Page.class;
     }
 

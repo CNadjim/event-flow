@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.api;
 
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 
 public interface SendEvent {
-    void send(Event event);
+    void send(EventWrapper event);
 }

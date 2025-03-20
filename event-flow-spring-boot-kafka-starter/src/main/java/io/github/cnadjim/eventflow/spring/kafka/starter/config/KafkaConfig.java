@@ -3,10 +3,9 @@ package io.github.cnadjim.eventflow.spring.kafka.starter.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 import io.github.cnadjim.eventflow.spring.kafka.starter.kafka.KafkaMessageDeserializer;
 import io.github.cnadjim.eventflow.spring.kafka.starter.kafka.KafkaMessageSerializer;
-import io.github.cnadjim.eventflow.spring.starter.property.EventFlowProperties;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -25,8 +24,11 @@ public class KafkaConfig {
     @Value("${spring.application.name}")
     private String springApplicationName;
 
+    @Value("${spring.kafka.bootstrap-servers}")
+    private String boostrapServers;
+
     @Bean("eventConsumerConfig")
-    public Properties eventConsumerConfig(final EventFlowProperties eventFlowProperties) {
+    public Properties eventConsumerConfig() {
         final Properties consumerConfig = new Properties();
         consumerConfig.putIfAbsent(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
         consumerConfig.putIfAbsent(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
@@ -35,13 +37,13 @@ public class KafkaConfig {
         consumerConfig.putIfAbsent(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
         consumerConfig.putIfAbsent(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
         consumerConfig.putIfAbsent(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaMessageDeserializer.class.getName());
-        consumerConfig.putIfAbsent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, String.format("%s:%s", eventFlowProperties.getKafka().getHostname(), eventFlowProperties.getKafka().getPort()));
+        consumerConfig.putIfAbsent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, boostrapServers);
         consumerConfig.putIfAbsent(ConsumerConfig.GROUP_ID_CONFIG, springApplicationName);
         return consumerConfig;
     }
 
     @Bean("eventProducerConfig")
-    public Properties eventProducerConfig(final EventFlowProperties eventFlowProperties) {
+    public Properties eventProducerConfig() {
         final Properties producerConfig = new Properties();
         producerConfig.putIfAbsent(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         producerConfig.putIfAbsent(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaMessageSerializer.class);
@@ -49,7 +51,7 @@ public class KafkaConfig {
         producerConfig.putIfAbsent(ProducerConfig.RETRIES_CONFIG, Integer.MAX_VALUE);
         producerConfig.putIfAbsent(ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG, true);
         producerConfig.putIfAbsent(ProducerConfig.COMPRESSION_TYPE_CONFIG, "zstd");
-        producerConfig.putIfAbsent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, String.format("%s:%s", eventFlowProperties.getKafka().getHostname(), eventFlowProperties.getKafka().getPort()));
+        producerConfig.putIfAbsent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, boostrapServers);
 
         return producerConfig;
     }
@@ -65,14 +67,14 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaConsumer<String, Event> eventConsumer(@Qualifier(value = "eventConsumerConfig") final Properties eventConsumerConfig,
-                                                      @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
-        return new KafkaConsumer<>(eventConsumerConfig, new StringDeserializer(), new KafkaMessageDeserializer<>(Event.class, kafkaObjectMapper));
+    public KafkaConsumer<String, EventWrapper> eventConsumer(@Qualifier(value = "eventConsumerConfig") final Properties eventConsumerConfig,
+                                                             @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
+        return new KafkaConsumer<>(eventConsumerConfig, new StringDeserializer(), new KafkaMessageDeserializer<>(EventWrapper.class, kafkaObjectMapper));
     }
 
     @Bean
-    public KafkaProducer<String, Event> eventProducer(@Qualifier(value = "eventProducerConfig") final Properties eventProducerConfig,
-                                                      @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
+    public KafkaProducer<String, EventWrapper> eventProducer(@Qualifier(value = "eventProducerConfig") final Properties eventProducerConfig,
+                                                             @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
         return new KafkaProducer<>(eventProducerConfig, new StringSerializer(), new KafkaMessageSerializer<>(kafkaObjectMapper));
     }
 

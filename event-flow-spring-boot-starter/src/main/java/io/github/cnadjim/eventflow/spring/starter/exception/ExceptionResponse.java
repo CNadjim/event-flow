@@ -2,11 +2,13 @@ package io.github.cnadjim.eventflow.spring.starter.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Instant;
+import java.util.Objects;
 import java.util.Optional;
 
 import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
@@ -15,7 +17,10 @@ import static org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR;
 public record ExceptionResponse(Instant timestamp, Integer status, String error, String message, Object details) {
 
     public ExceptionResponse {
-
+        if (Objects.isNull(timestamp)) throw new IllegalArgumentException();
+        if (Objects.isNull(status)) throw new IllegalArgumentException();
+        if (StringUtils.isBlank(error)) throw new IllegalArgumentException();
+        if (StringUtils.isBlank(message)) throw new IllegalArgumentException();
     }
 
     public static ExceptionResponse create(HttpStatus httpStatus, String message) {
