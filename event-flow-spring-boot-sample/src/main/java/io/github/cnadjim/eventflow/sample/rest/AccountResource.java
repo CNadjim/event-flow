@@ -11,10 +11,13 @@ import io.github.cnadjim.eventflow.sample.domain.account.command.UpdateAccountPs
 import io.github.cnadjim.eventflow.sample.domain.account.entity.MongoAccountEntity;
 import io.github.cnadjim.eventflow.sample.domain.account.query.FindAccountQuery;
 import io.github.cnadjim.eventflow.sample.domain.account.query.FindAllAccountQuery;
+import io.github.cnadjim.eventflow.sample.dto.request.UpdateAccountBirthdayRequest;
 import io.github.cnadjim.eventflow.sample.dto.request.UpdateAccountPseudonymRequest;
 import io.github.cnadjim.eventflow.sample.dto.response.AccountCreatedResponse;
 import io.github.cnadjim.eventflow.sample.dto.request.CreateAccountRequest;
+import io.github.cnadjim.eventflow.sample.dto.response.AccountDeletedResponse;
 import io.github.cnadjim.eventflow.sample.dto.response.AccountUpdatedResponse;
+import io.github.cnadjim.eventflow.spring.starter.pagination.PageResponse;
 import io.github.cnadjim.eventflow.spring.starter.pagination.SpringResponseType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +37,9 @@ public class AccountResource {
     private final SendQuery sendQuery;
     private final SendCommand sendCommand;
 
-    @PostMapping
-    public CompletableFuture<AccountCreatedResponse> createAccount(@RequestBody @Valid CreateAccountRequest accountCreationRequest) {
-        return sendCommand.sendCommand(CreateAccountCommand.of(accountCreationRequest)).thenApplyAsync(AccountCreatedResponse::of);
-    }
-
     @GetMapping
-    public CompletableFuture<Page<MongoAccountEntity>> findAllAccount() {
-        return sendQuery.query(new FindAllAccountQuery(), SpringResponseType.pageOf(MongoAccountEntity.class));
+    public CompletableFuture<PageResponse<MongoAccountEntity>> findAllAccount() {
+        return sendQuery.query(new FindAllAccountQuery(), SpringResponseType.pageOf(MongoAccountEntity.class)).thenApplyAsync(PageResponse::of);
     }
 
     @GetMapping("{email}")
@@ -49,9 +47,9 @@ public class AccountResource {
         return sendQuery.query(new FindAccountQuery(email), ResponseType.instanceOf(MongoAccountEntity.class));
     }
 
-    @DeleteMapping("{email}")
-    public CompletableFuture<String> deleteAccount(@PathVariable String email) {
-        return sendCommand.sendCommand(new DeleteAccountCommand(email));
+    @PostMapping
+    public CompletableFuture<AccountCreatedResponse> createAccount(@RequestBody @Valid CreateAccountRequest accountCreationRequest) {
+        return sendCommand.sendCommand(CreateAccountCommand.of(accountCreationRequest)).thenApplyAsync(AccountCreatedResponse::of);
     }
 
     @PutMapping("{email}/update-pseudonym")
@@ -60,8 +58,13 @@ public class AccountResource {
     }
 
     @PutMapping("{email}/update-birth-date")
-    public CompletableFuture<AccountUpdatedResponse> updateBirthDate(@PathVariable String email, @RequestBody UpdateAccountBirthDateCommand updateAccountBirthDateCommand) {
-        return sendCommand.sendCommand(updateAccountBirthDateCommand).thenApplyAsync(AccountUpdatedResponse::of);
+    public CompletableFuture<AccountUpdatedResponse> updateBirthDate(@PathVariable String email, @RequestBody UpdateAccountBirthdayRequest updateAccountBirthdayRequest) {
+        return sendCommand.sendCommand(UpdateAccountBirthDateCommand.of(email, updateAccountBirthdayRequest)).thenApplyAsync(AccountUpdatedResponse::of);
+    }
+
+    @DeleteMapping("{email}")
+    public CompletableFuture<AccountDeletedResponse> deleteAccount(@PathVariable String email) {
+        return sendCommand.sendCommand(new DeleteAccountCommand(email)).thenApplyAsync(AccountDeletedResponse::of);
     }
 
 }

@@ -4,7 +4,9 @@ import io.github.cnadjim.eventflow.core.api.SendEvent;
 import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 import io.github.cnadjim.eventflow.core.spi.EventPublisher;
 import io.github.cnadjim.eventflow.core.spi.EventSubscriber;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -19,6 +21,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+@Slf4j
 public class KafkaEventBus implements Runnable, EventSubscriber, EventPublisher {
 
     private final SendEvent sendEvent;
@@ -81,7 +84,7 @@ public class KafkaEventBus implements Runnable, EventSubscriber, EventPublisher 
                 }
             }
         } catch (Exception exception) {
-            //log.error(ExceptionUtils.getRootCauseMessage(exception), exception);
+            log.error(ExceptionUtils.getRootCauseMessage(exception), exception);
         } finally {
             kafkaConsumer.close();
         }

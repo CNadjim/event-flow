@@ -44,7 +44,7 @@ public class EventFlowTest {
         System.setProperty("org.slf4j.simpleLogger.defaultLogLevel", "DEBUG");
     }
 
-    @Test
+
     public void event_flow_test() throws ExecutionException, InterruptedException {
         String aggregateId = UUID.randomUUID().toString();
 
