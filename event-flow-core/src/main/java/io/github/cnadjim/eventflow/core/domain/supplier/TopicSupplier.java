@@ -13,6 +13,14 @@ public interface TopicSupplier {
 
     String topic();
 
+    static String getTopic(Object payload) {
+        return findTopic(payload).orElse(null);
+    }
+
+    static String getTopic(Class<?> clazz) {
+        return findTopic(clazz).orElse(null);
+    }
+
     static Optional<String> findTopic(Class<?> clazz) {
         final Topic payloadTopic = clazz.getAnnotation(Topic.class);
 

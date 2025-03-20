@@ -14,6 +14,14 @@ public interface AggregateIdSupplier {
 
     String aggregateId();
 
+    static String create() {
+        return IdSupplier.create();
+    }
+
+    static String getAggregateId(Object payload) {
+        return findAggregateId(payload).orElse(null);
+    }
+
     static Optional<String> findAggregateId(Object payload) {
         Optional<String> optionalAggregateId = Optional.empty();
 

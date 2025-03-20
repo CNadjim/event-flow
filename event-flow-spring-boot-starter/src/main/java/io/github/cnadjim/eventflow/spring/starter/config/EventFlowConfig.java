@@ -9,9 +9,9 @@ import io.github.cnadjim.eventflow.core.service.EventGateway;
 import io.github.cnadjim.eventflow.core.service.HandlerService;
 import io.github.cnadjim.eventflow.core.service.QueryGateway;
 import io.github.cnadjim.eventflow.core.spi.*;
+import io.github.cnadjim.eventflow.core.stub.InMemoryAggregateStore;
 import io.github.cnadjim.eventflow.core.stub.InMemoryEventStore;
 import io.github.cnadjim.eventflow.core.stub.InMemoryHandlerRegistry;
-import io.github.cnadjim.eventflow.core.stub.InMemoryTopicRegistry;
 import io.github.cnadjim.eventflow.core.stub.StubEventBus;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +23,12 @@ public class EventFlowConfig {
     @ConditionalOnMissingBean(value = {EventSubscriber.class, EventPublisher.class})
     public StubEventBus stubEventBus(final SendEvent sendEvent) {
         return new StubEventBus(sendEvent);
+    }
+
+    @Bean
+    @ConditionalOnMissingBean(EventStore.class)
+    public AggregateStore aggregateStore() {
+        return new InMemoryAggregateStore();
     }
 
     @Bean
@@ -39,24 +45,17 @@ public class EventFlowConfig {
 
     @Bean
     @Primary
-    public TopicRegistry topicRegistry() {
-        return new InMemoryTopicRegistry();
-    }
-
-    @Bean
-    @Primary
-    public RegisterHandler registerHandler(final TopicRegistry topicRegistry,
-                                           final HandlerRegistry handlerRegistry,
-                                           final EventSubscriber eventSubscriber) {
-        return new HandlerService(topicRegistry, handlerRegistry, eventSubscriber);
+    public RegisterHandler registerHandler(final EventSubscriber eventSubscriber, final HandlerRegistry handlerRegistry) {
+        return new HandlerService(eventSubscriber, handlerRegistry);
     }
 
     @Bean
     @Primary
     public SendCommand sendCommand(final EventStore eventStore,
                                    final EventPublisher eventPublisher,
+                                   final AggregateStore aggregateStore,
                                    final HandlerRegistry handlerRegistry) {
-        return new CommandGateway(eventStore, eventPublisher, handlerRegistry);
+        return new CommandGateway(eventStore,aggregateStore, eventPublisher, handlerRegistry);
     }
 
     @Bean

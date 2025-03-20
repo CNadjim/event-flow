@@ -2,7 +2,7 @@ package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.core.api.SendEvent;
 import io.github.cnadjim.eventflow.annotation.DomainService;
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 import io.github.cnadjim.eventflow.core.domain.handler.EventHandler;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
 
@@ -19,7 +19,7 @@ public class EventGateway implements SendEvent {
         this.handlerRegistry = handlerRegistry;
     }
 
-    public void sendSync(Event event) {
+    public void sendSync(EventWrapper event) {
         final EventHandler eventHandler = handlerRegistry.findEventHandler(event.payloadClass()).orElse(null);
         if (nonNull(eventHandler)) {
             eventHandler.onEvent(event);
@@ -27,7 +27,7 @@ public class EventGateway implements SendEvent {
     }
 
     @Override
-    public void send(Event event) {
+    public void send(EventWrapper event) {
         CompletableFuture.runAsync(() -> sendSync(event));
     }
 }

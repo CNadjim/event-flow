@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.handler;
 
-import io.github.cnadjim.eventflow.core.domain.Command;
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.CommandWrapper;
+import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 import io.github.cnadjim.eventflow.core.domain.exception.handler.CommandHandlerExecutionException;
 
 import java.lang.reflect.Method;
@@ -13,21 +13,21 @@ import static java.util.Objects.nonNull;
 
 @FunctionalInterface
 public interface CommandHandler extends HandlerInvoker {
-    List<Event> handle(Command command) throws CommandHandlerExecutionException;
+    List<EventWrapper> handle(CommandWrapper command) throws CommandHandlerExecutionException;
 
     static CommandHandler create(Object instance, Method method) {
         return (command) -> {
 
             final Object payload = command.payload();
             final Object result = invoke(instance, method, payload);
-            final List<Event> events = new ArrayList<>();
+            final List<EventWrapper> events = new ArrayList<>();
 
             if (result instanceof List<?> results) {
                 for (Object event : results) {
-                    events.add(Event.create(event));
+                    events.add(EventWrapper.create(event));
                 }
             } else if (nonNull(result)) {
-                events.add(Event.create(result));
+                events.add(EventWrapper.create(result));
             } else {
                 throw new CommandHandlerExecutionException(String.format("Command handler %s returned null or empty result", method.getName()));
             }

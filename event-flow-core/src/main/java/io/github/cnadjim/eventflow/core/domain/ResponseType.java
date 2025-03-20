@@ -19,7 +19,7 @@ public interface ResponseType<R> {
     /**
      * Returns the expected response class.
      */
-    Class<R> responseMessagePayloadType();
+    Class<R> type();
 
     /**
      * Converts the response from its serialized form to the expected response type.
@@ -50,17 +50,7 @@ public interface ResponseType<R> {
     /**
      * Implementation of ResponseType for a single instance.
      */
-    class InstanceResponseType<R> implements ResponseType<R> {
-        private final Class<R> responseType;
-
-        public InstanceResponseType(Class<R> responseType) {
-            this.responseType = responseType;
-        }
-
-        @Override
-        public Class<R> responseMessagePayloadType() {
-            return responseType;
-        }
+    record InstanceResponseType<R>(Class<R> type) implements ResponseType<R> {
 
         @Override
         @SuppressWarnings("unchecked")
@@ -69,11 +59,11 @@ public interface ResponseType<R> {
                 return null;
             }
 
-            if (responseType.isAssignableFrom(response.getClass())) {
+            if (type.isAssignableFrom(response.getClass())) {
                 return (R) response;
             }
 
-            throw new EventFlowIllegalArgumentException("Cannot convert response to " + responseType.getName());
+            throw new EventFlowIllegalArgumentException("Cannot convert response to " + type.getName());
         }
     }
 
@@ -89,7 +79,7 @@ public interface ResponseType<R> {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Class<List<R>> responseMessagePayloadType() {
+        public Class<List<R>> type() {
             return (Class<List<R>>) (Class<?>) List.class;
         }
 
@@ -124,7 +114,7 @@ public interface ResponseType<R> {
 
         @Override
         @SuppressWarnings("unchecked")
-        public Class<Optional<R>> responseMessagePayloadType() {
+        public Class<Optional<R>> type() {
             return (Class<Optional<R>>) (Class<?>) Optional.class;
         }
 
@@ -142,4 +132,5 @@ public interface ResponseType<R> {
             return Optional.empty();
         }
     }
+
 }

@@ -3,7 +3,7 @@ package io.github.cnadjim.eventflow.spring.kafka.starter.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 import io.github.cnadjim.eventflow.spring.kafka.starter.kafka.KafkaMessageDeserializer;
 import io.github.cnadjim.eventflow.spring.kafka.starter.kafka.KafkaMessageSerializer;
 import io.github.cnadjim.eventflow.spring.starter.property.EventFlowProperties;
@@ -65,14 +65,14 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaConsumer<String, Event> eventConsumer(@Qualifier(value = "eventConsumerConfig") final Properties eventConsumerConfig,
-                                                      @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
-        return new KafkaConsumer<>(eventConsumerConfig, new StringDeserializer(), new KafkaMessageDeserializer<>(Event.class, kafkaObjectMapper));
+    public KafkaConsumer<String, EventWrapper> eventConsumer(@Qualifier(value = "eventConsumerConfig") final Properties eventConsumerConfig,
+                                                             @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
+        return new KafkaConsumer<>(eventConsumerConfig, new StringDeserializer(), new KafkaMessageDeserializer<>(EventWrapper.class, kafkaObjectMapper));
     }
 
     @Bean
-    public KafkaProducer<String, Event> eventProducer(@Qualifier(value = "eventProducerConfig") final Properties eventProducerConfig,
-                                                      @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
+    public KafkaProducer<String, EventWrapper> eventProducer(@Qualifier(value = "eventProducerConfig") final Properties eventProducerConfig,
+                                                             @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
         return new KafkaProducer<>(eventProducerConfig, new StringSerializer(), new KafkaMessageSerializer<>(kafkaObjectMapper));
     }
 

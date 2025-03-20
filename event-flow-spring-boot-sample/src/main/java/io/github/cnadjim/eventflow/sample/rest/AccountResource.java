@@ -11,8 +11,10 @@ import io.github.cnadjim.eventflow.sample.domain.account.command.UpdateAccountPs
 import io.github.cnadjim.eventflow.sample.domain.account.entity.MongoAccountEntity;
 import io.github.cnadjim.eventflow.sample.domain.account.query.FindAccountQuery;
 import io.github.cnadjim.eventflow.sample.domain.account.query.FindAllAccountQuery;
+import io.github.cnadjim.eventflow.sample.dto.request.UpdateAccountPseudonymRequest;
 import io.github.cnadjim.eventflow.sample.dto.response.AccountCreatedResponse;
-import io.github.cnadjim.eventflow.sample.dto.request.AccountCreationRequest;
+import io.github.cnadjim.eventflow.sample.dto.request.CreateAccountRequest;
+import io.github.cnadjim.eventflow.sample.dto.response.AccountUpdatedResponse;
 import io.github.cnadjim.eventflow.spring.starter.pagination.SpringResponseType;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +35,7 @@ public class AccountResource {
     private final SendCommand sendCommand;
 
     @PostMapping
-    public CompletableFuture<AccountCreatedResponse> createAccount(@RequestBody @Valid AccountCreationRequest accountCreationRequest) {
+    public CompletableFuture<AccountCreatedResponse> createAccount(@RequestBody @Valid CreateAccountRequest accountCreationRequest) {
         return sendCommand.sendCommand(CreateAccountCommand.of(accountCreationRequest)).thenApplyAsync(AccountCreatedResponse::of);
     }
 
@@ -53,13 +55,13 @@ public class AccountResource {
     }
 
     @PutMapping("{email}/update-pseudonym")
-    public CompletableFuture<String> updatePseudonym(@PathVariable String email, @RequestBody UpdateAccountPseudonymCommand updateAccountPseudonymCommand) {
-        return sendCommand.sendCommand(updateAccountPseudonymCommand);
+    public CompletableFuture<AccountUpdatedResponse> updatePseudonym(@PathVariable String email, @RequestBody UpdateAccountPseudonymRequest updateAccountPseudonymRequest) {
+        return sendCommand.sendCommand(UpdateAccountPseudonymCommand.of(email, updateAccountPseudonymRequest)).thenApplyAsync(AccountUpdatedResponse::of);
     }
 
     @PutMapping("{email}/update-birth-date")
-    public CompletableFuture<String> updateBirthDate(@PathVariable String email, @RequestBody UpdateAccountBirthDateCommand updateAccountBirthDateCommand) {
-        return sendCommand.sendCommand(updateAccountBirthDateCommand);
+    public CompletableFuture<AccountUpdatedResponse> updateBirthDate(@PathVariable String email, @RequestBody UpdateAccountBirthDateCommand updateAccountBirthDateCommand) {
+        return sendCommand.sendCommand(updateAccountBirthDateCommand).thenApplyAsync(AccountUpdatedResponse::of);
     }
 
 }

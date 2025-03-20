@@ -31,7 +31,6 @@ Il offre une approche hexagonale pour construire des applications basées sur l'
 - `EventPublisher`: Publie des événements
 - `EventSubscriber`: S'abonne aux sujets d'événements
 - `HandlerRegistry`: Enregistre et gère les gestionnaires
-- `TopicRegistry`: Gère les sujets d'événements
 
 
 ## Options d'implémentation
@@ -62,7 +61,6 @@ Event-flow utilise fortement les annotations pour simplifier la configuration:
 - `@HandleEvent`: Marque une méthode comme gestionnaire d'événement
 - `@HandleQuery`: Marque une méthode comme gestionnaire de requête
 - `@ApplyEvent`: Marque une méthode qui applique un événement à un agrégat
-- `@Topic`: Définit un sujet pour les événements
 
 
 ## Architecture

@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.spring.mongo.starter.entity;
 
 
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -19,7 +19,7 @@ public class MongoEventEntity {
     private Instant timestamp;
     private String aggregateId;
 
-    public static MongoEventEntity fromEvent(Event event) {
+    public static MongoEventEntity fromEvent(EventWrapper event) {
         final MongoEventEntity eventEntity = new MongoEventEntity();
         eventEntity.setId(event.id());
         eventEntity.setTopic(event.topic());
@@ -29,7 +29,7 @@ public class MongoEventEntity {
         return eventEntity;
     }
 
-    public static Event toEvent(MongoEventEntity eventEntity) {
-       return new Event(eventEntity.getId(), eventEntity.getTopic(), eventEntity.getPayload(), eventEntity.getTimestamp(), eventEntity.getAggregateId());
+    public static EventWrapper toEvent(MongoEventEntity eventEntity) {
+        return new EventWrapper(eventEntity.getId(), eventEntity.getTopic(), eventEntity.getPayload(), eventEntity.getTimestamp(), eventEntity.getAggregateId());
     }
 }

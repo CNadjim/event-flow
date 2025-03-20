@@ -15,7 +15,7 @@ public interface RegisterHandler {
 
     void registerEventSourcingHandler(Class<?> messagePayloadClass, EventSourcingHandler eventSourcingHandler);
 
-    void registerEventHandler(Object eventHandlerInstance);
+    void scanInstance(Object instance);
 
     void scanPackage(String packageName);
 }

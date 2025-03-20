@@ -9,9 +9,9 @@ import io.github.cnadjim.eventflow.core.service.EventGateway;
 import io.github.cnadjim.eventflow.core.service.HandlerService;
 import io.github.cnadjim.eventflow.core.service.QueryGateway;
 import io.github.cnadjim.eventflow.core.spi.*;
+import io.github.cnadjim.eventflow.core.stub.InMemoryAggregateStore;
 import io.github.cnadjim.eventflow.core.stub.InMemoryEventStore;
 import io.github.cnadjim.eventflow.core.stub.InMemoryHandlerRegistry;
-import io.github.cnadjim.eventflow.core.stub.InMemoryTopicRegistry;
 import io.github.cnadjim.eventflow.core.stub.StubEventBus;
 
 import java.util.Optional;
@@ -26,11 +26,16 @@ public record Eventflow(SendQuery queryGateway,
 
     public static final class EventFlowBuilder {
         EventStore eventStore;
-        TopicRegistry topicRegistry;
+        AggregateStore aggregateStore;
         EventPublisher eventPublisher;
         EventSubscriber eventSubscriber;
         HandlerRegistry handlerRegistry;
 
+
+        public EventFlowBuilder aggregateStore(AggregateStore aggregateStore) {
+            this.aggregateStore = aggregateStore;
+            return this;
+        }
 
         public EventFlowBuilder eventPublisher(EventPublisher eventPublisher) {
             this.eventPublisher = eventPublisher;
@@ -52,29 +57,24 @@ public record Eventflow(SendQuery queryGateway,
             return this;
         }
 
-        public EventFlowBuilder topicRegistry(TopicRegistry topicRegistry) {
-            this.topicRegistry = topicRegistry;
-            return this;
-        }
 
         public Eventflow build() {
-            final StubEventBus stubEventBus;
 
             eventStore = Optional.ofNullable(eventStore).orElse(new InMemoryEventStore());
-            topicRegistry = Optional.ofNullable(topicRegistry).orElse(new InMemoryTopicRegistry());
             handlerRegistry = Optional.ofNullable(handlerRegistry).orElse(new InMemoryHandlerRegistry());
+            aggregateStore = Optional.ofNullable(aggregateStore).orElse(new InMemoryAggregateStore());
 
             final SendQuery sendQuery = new QueryGateway(handlerRegistry);
             final SendEvent sendEvent = new EventGateway(handlerRegistry);
 
             if (isNull(eventPublisher) || isNull(eventSubscriber)) {
-                stubEventBus = new StubEventBus(sendEvent);
-            } else {
-                stubEventBus = null;
+                final StubEventBus stubEventBus = new StubEventBus(sendEvent);
+                eventPublisher = stubEventBus;
+                eventSubscriber = stubEventBus;
             }
 
-            final SendCommand sendCommand = new CommandGateway(eventStore, Optional.ofNullable(eventPublisher).orElse(stubEventBus), handlerRegistry);
-            final RegisterHandler registerHandler = new HandlerService(topicRegistry, handlerRegistry, Optional.ofNullable(eventSubscriber).orElse(stubEventBus));
+            final SendCommand sendCommand = new CommandGateway(eventStore, aggregateStore, eventPublisher, handlerRegistry);
+            final RegisterHandler registerHandler = new HandlerService(eventSubscriber, handlerRegistry);
 
             return new Eventflow(
                     sendQuery,
