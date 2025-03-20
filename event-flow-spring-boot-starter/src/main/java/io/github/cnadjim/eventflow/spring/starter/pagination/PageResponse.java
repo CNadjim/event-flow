@@ -9,8 +9,7 @@ public record PageResponse<T>(
         int pageNumber,
         int pageSize,
         long totalElements,
-        int totalPages
-) {
+        int totalPages) {
 
     public static <T> PageResponse<T> of(Page<T> springPage) {
         return new PageResponse<>(

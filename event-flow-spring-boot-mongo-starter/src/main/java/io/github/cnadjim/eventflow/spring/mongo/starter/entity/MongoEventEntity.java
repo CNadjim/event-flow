@@ -4,12 +4,17 @@ package io.github.cnadjim.eventflow.spring.mongo.starter.entity;
 import io.github.cnadjim.eventflow.core.domain.EventWrapper;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
+import org.springframework.data.mongodb.core.index.CompoundIndexes;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.Instant;
 
 @Data
 @Document(collection = "event-store")
+@CompoundIndexes({
+        @CompoundIndex(name = "aggregateId_timestamp_idx", def = "{'aggregateId': 1, 'timestamp': -1}")
+})
 public class MongoEventEntity {
 
     @Id

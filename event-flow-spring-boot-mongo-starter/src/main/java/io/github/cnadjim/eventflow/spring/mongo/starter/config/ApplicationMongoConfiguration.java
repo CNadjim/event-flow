@@ -16,7 +16,7 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 import static java.util.Collections.singletonList;
 
-@EnableMongoRepositories(mongoTemplateRef = "mongoTemplate")
+@EnableMongoRepositories
 public class ApplicationMongoConfiguration {
 
     @Primary

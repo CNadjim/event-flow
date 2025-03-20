@@ -22,9 +22,9 @@ public class MongoEventStore implements EventStore {
     @Override
     @Transactional
     public void save(EventWrapper event) {
-        if (nonNull(event)) {
-            eventEntityRepository.save(MongoEventEntity.fromEvent(event));
-        }
+        Optional.ofNullable(event)
+                .map(MongoEventEntity::fromEvent)
+                .ifPresent(eventEntityRepository::save);
     }
 
     @Override
@@ -48,6 +48,7 @@ public class MongoEventStore implements EventStore {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<EventWrapper> findAllByAggregateIdOrderByTimestampAscStartFrom(String aggregateId, int startFrom) {
         return eventEntityRepository.findAllByAggregateIdOrderByTimestampAsc(aggregateId, PageRequest.of(1, startFrom))
                 .stream()

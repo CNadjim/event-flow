@@ -3,7 +3,6 @@ package io.github.cnadjim.eventflow.spring.starter.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import io.github.cnadjim.eventflow.spring.starter.jackson.ClassAwareSerializer;
 import io.github.cnadjim.eventflow.spring.starter.jackson.InstantDeserializer;
 import io.github.cnadjim.eventflow.spring.starter.jackson.InstantSerializer;
 import io.github.cnadjim.eventflow.spring.starter.jackson.LocalDateTimeSerializer;
