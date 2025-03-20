@@ -91,7 +91,7 @@ public class CommandGateway implements SendCommand {
             events = eventStore.findAllByAggregateIdOrderByTimestampAsc(aggregateId);
         }
 
-        AtomicLong counter = new AtomicLong(0);
+        final AtomicLong counter = new AtomicLong(0);
 
         for (EventWrapper event : events) {
             final EventSourcingHandler eventSourcingHandler = handlerRegistry.getEventSourcingHandler(event.payloadClass());
