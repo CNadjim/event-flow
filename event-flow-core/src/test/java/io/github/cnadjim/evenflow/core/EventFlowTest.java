@@ -87,4 +87,6 @@ public class EventFlowTest {
         assertEquals(10000L, StreamSupport.stream((eventStore.findAllByAggregateIdOrderByTimestampAsc(aggregateId).spliterator()), false).count());
         assertEquals(9800L, StreamSupport.stream((eventStore.findAllByAggregateIdOrderByTimestampAsc(aggregateId).spliterator()), false).count() - threshold);
     }
+
+
 }

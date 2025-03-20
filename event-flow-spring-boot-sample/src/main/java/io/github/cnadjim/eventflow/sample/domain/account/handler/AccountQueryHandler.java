@@ -25,6 +25,6 @@ public class AccountQueryHandler {
 
     @HandleQuery
     public Page<MongoAccountEntity> handle(FindAllAccountQuery query) {
-        return mongoAccountRepository.findAll(PageRequest.ofSize(10));
+        return mongoAccountRepository.findAll(PageRequest.ofSize(100));
     }
 }

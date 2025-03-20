@@ -4,10 +4,7 @@ import io.github.cnadjim.eventflow.core.api.RegisterHandler;
 import io.github.cnadjim.eventflow.core.api.SendCommand;
 import io.github.cnadjim.eventflow.core.api.SendEvent;
 import io.github.cnadjim.eventflow.core.api.SendQuery;
-import io.github.cnadjim.eventflow.core.service.CommandGateway;
-import io.github.cnadjim.eventflow.core.service.EventGateway;
-import io.github.cnadjim.eventflow.core.service.HandlerService;
-import io.github.cnadjim.eventflow.core.service.QueryGateway;
+import io.github.cnadjim.eventflow.core.service.*;
 import io.github.cnadjim.eventflow.core.spi.*;
 import io.github.cnadjim.eventflow.core.stub.InMemoryAggregateStore;
 import io.github.cnadjim.eventflow.core.stub.InMemoryEventStore;
@@ -73,7 +70,8 @@ public record Eventflow(SendQuery queryGateway,
                 eventSubscriber = stubEventBus;
             }
 
-            final SendCommand sendCommand = new CommandGateway(eventStore, aggregateStore, eventPublisher, handlerRegistry);
+            final AggregateService aggregateService = new AggregateService(eventStore, aggregateStore, handlerRegistry);
+            final SendCommand sendCommand = new CommandGateway(eventStore, eventPublisher, handlerRegistry, aggregateService);
             final RegisterHandler registerHandler = new HandlerService(eventSubscriber, handlerRegistry);
 
             return new Eventflow(

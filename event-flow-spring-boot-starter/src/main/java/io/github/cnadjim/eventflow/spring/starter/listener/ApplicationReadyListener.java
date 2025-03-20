@@ -59,7 +59,7 @@ public class ApplicationReadyListener implements BeanPostProcessor {
         if (method.getParameterCount() >= 1) {
             Class<?> eventType = method.getParameters()[0].getType();
             EventHandler eventHandler = EventHandler.create(bean, method);
-            registerHandler.registerEventHandler(eventType, eventHandler);
+            registerHandler.registerHandler(eventType, eventHandler);
         }
     }
 
@@ -67,7 +67,7 @@ public class ApplicationReadyListener implements BeanPostProcessor {
         if (method.getParameterCount() >= 1) {
             Class<?> queryType = method.getParameters()[0].getType();
             QueryHandler queryHandler = QueryHandler.create(bean, method);
-            registerHandler.registerQueryHandler(queryType, queryHandler);
+            registerHandler.registerHandler(queryType, queryHandler);
         }
     }
 

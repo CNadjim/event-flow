@@ -2,11 +2,9 @@ package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.annotation.*;
 import io.github.cnadjim.eventflow.core.api.RegisterHandler;
+import io.github.cnadjim.eventflow.core.domain.exception.EventFlowIllegalArgumentException;
 import io.github.cnadjim.eventflow.core.domain.exception.ScanPackageExecutionException;
-import io.github.cnadjim.eventflow.core.domain.handler.CommandHandler;
-import io.github.cnadjim.eventflow.core.domain.handler.EventHandler;
-import io.github.cnadjim.eventflow.core.domain.handler.EventSourcingHandler;
-import io.github.cnadjim.eventflow.core.domain.handler.QueryHandler;
+import io.github.cnadjim.eventflow.core.domain.handler.*;
 import io.github.cnadjim.eventflow.core.spi.EventSubscriber;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
 
@@ -26,29 +24,37 @@ public class HandlerService implements RegisterHandler {
     private final EventSubscriber eventSubscriber;
     private final HandlerRegistry handlerRegistry;
 
-    public HandlerService(EventSubscriber eventSubscriber, HandlerRegistry handlerRegistry) {
+    public HandlerService(EventSubscriber eventSubscriber,
+                           HandlerRegistry handlerRegistry) {
         this.eventSubscriber = eventSubscriber;
         this.handlerRegistry = handlerRegistry;
     }
 
     @Override
-    public void registerCommandHandler(Class<?> messagePayloadClass, CommandHandler commandHandler) {
+    public <HANDLER extends HandlerInvoker> void registerHandler(Class<?> messagePayloadClass, HANDLER handler) {
+        switch (handler){
+            case EventHandler eventHandler -> registerEventHandler(messagePayloadClass, eventHandler);
+            case QueryHandler queryHandler -> registerQueryHandler(messagePayloadClass, queryHandler);
+            case CommandHandler commandHandler -> registerCommandHandler(messagePayloadClass, commandHandler);
+            case EventSourcingHandler eventSourcingHandler -> registerEventSourcingHandler(messagePayloadClass, eventSourcingHandler);
+            default -> throw new EventFlowIllegalArgumentException("Unexpected value: " + handler);
+        }
+    }
+
+    private void registerCommandHandler(Class<?> messagePayloadClass, CommandHandler commandHandler) {
         handlerRegistry.registerHandler(messagePayloadClass, commandHandler);
     }
 
-    @Override
-    public void registerEventHandler(Class<?> messagePayloadClass, EventHandler eventHandler) {
+    private void registerEventHandler(Class<?> messagePayloadClass, EventHandler eventHandler) {
         eventSubscriber.subscribe(messagePayloadClass.getSimpleName());
         handlerRegistry.registerHandler(messagePayloadClass, eventHandler);
     }
 
-    @Override
-    public void registerQueryHandler(Class<?> messagePayloadClass, QueryHandler queryHandler) {
+    private void registerQueryHandler(Class<?> messagePayloadClass, QueryHandler queryHandler) {
         handlerRegistry.registerHandler(messagePayloadClass, queryHandler);
     }
 
-    @Override
-    public void registerEventSourcingHandler(Class<?> messagePayloadClass, EventSourcingHandler eventSourcingHandler) {
+    private void registerEventSourcingHandler(Class<?> messagePayloadClass, EventSourcingHandler eventSourcingHandler) {
         eventSubscriber.subscribe(messagePayloadClass.getSimpleName());
         handlerRegistry.registerHandler(messagePayloadClass, eventSourcingHandler);
     }
