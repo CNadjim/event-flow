@@ -13,6 +13,7 @@
     <artifactId>event-flow-core</artifactId>
 
     <properties>
+        <caffeine.version>3.2.0</caffeine.version>
         <slf4j.version>2.0.17</slf4j.version>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
@@ -113,8 +114,32 @@
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.5.2</version>
                 <configuration>
-                    <argLine>-javaagent:"${settings.localRepository}/org/mockito/mockito-core/5.16.0/mockito-core-5.16.0.jar"</argLine>
+                    <argLine>@{argLine} -javaagent:"${settings.localRepository}/org/mockito/mockito-core/5.16.0/mockito-core-5.16.0.jar"</argLine>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.jacoco</groupId>
+                <artifactId>jacoco-maven-plugin</artifactId>
+                <version>0.8.12</version>
+                <configuration>
+                    <destFile>${project.build.directory}/jacoco.exec</destFile>
+                    <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>prepare-agent</id>
+                        <goals>
+                            <goal>prepare-agent</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>report</id>
+                        <phase>test</phase>
+                        <goals>
+                            <goal>report</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

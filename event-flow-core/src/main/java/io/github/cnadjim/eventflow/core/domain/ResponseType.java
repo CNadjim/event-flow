@@ -1,75 +1,50 @@
 package io.github.cnadjim.eventflow.core.domain;
 
 
-import io.github.cnadjim.eventflow.core.domain.exception.EventFlowIllegalArgumentException;
-
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-/**
- * Interface describing the expected response type for a query.
- * Inspired by Axon Framework's ResponseType.
- *
- * @param <R> The response class contained in this response type
- */
+import static java.util.Objects.isNull;
+
 public interface ResponseType<R> {
 
-    /**
-     * Returns the expected response class.
-     */
-    Class<R> type();
-
-    /**
-     * Converts the response from its serialized form to the expected response type.
-     */
     R convert(Object response);
 
-    /**
-     * Returns a ResponseType for a single instance of type R.
-     */
     static <R> ResponseType<R> instanceOf(Class<R> responseType) {
         return new InstanceResponseType<>(responseType);
     }
 
-    /**
-     * Returns a ResponseType for a collection of instances of type R.
-     */
     static <R> ResponseType<List<R>> listOf(Class<R> responseType) {
         return new CollectionResponseType<>(responseType);
     }
 
-    /**
-     * Returns a ResponseType for an optional of type R.
-     */
     static <R> ResponseType<Optional<R>> optionalOf(Class<R> responseType) {
         return new OptionalResponseType<>(responseType);
     }
 
-    /**
-     * Implementation of ResponseType for a single instance.
-     */
+
+    static <R> ResponseType<Page<R>> pageOf(Class<R> responseType) {
+        return new PageResponseType<>(responseType);
+    }
+
     record InstanceResponseType<R>(Class<R> type) implements ResponseType<R> {
 
         @Override
-        @SuppressWarnings("unchecked")
         public R convert(Object response) {
             if (response == null) {
                 return null;
             }
 
             if (type.isAssignableFrom(response.getClass())) {
-                return (R) response;
+                return type.cast(response);
             }
 
-            throw new EventFlowIllegalArgumentException("Cannot convert response to " + type.getName());
+            throw new IllegalArgumentException("Cannot convert response to " + type.getName());
         }
     }
 
-    /**
-     * Implementation of ResponseType for a collection of instances.
-     */
     class CollectionResponseType<R> implements ResponseType<List<R>> {
         private final Class<R> responseType;
 
@@ -78,14 +53,6 @@ public interface ResponseType<R> {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public Class<List<R>> type() {
-            return (Class<List<R>>) (Class<?>) List.class;
-        }
-
-
-        @Override
-        @SuppressWarnings("unchecked")
         public List<R> convert(Object response) {
             if (response == null) {
                 return List.of();
@@ -94,17 +61,14 @@ public interface ResponseType<R> {
             if (response instanceof Collection) {
                 return ((Collection<?>) response).stream()
                         .filter(item -> responseType.isAssignableFrom(item.getClass()))
-                        .map(item -> (R) item)
+                        .map(responseType::cast)
                         .collect(Collectors.toList());
             }
 
-            throw new EventFlowIllegalArgumentException("Cannot convert response to a collection of " + responseType.getName());
+            throw new IllegalArgumentException("Cannot convert response to a collection of " + responseType.getName());
         }
     }
 
-    /**
-     * Implementation of ResponseType for an optional instance.
-     */
     class OptionalResponseType<R> implements ResponseType<Optional<R>> {
         private final Class<R> responseType;
 
@@ -113,24 +77,42 @@ public interface ResponseType<R> {
         }
 
         @Override
-        @SuppressWarnings("unchecked")
-        public Class<Optional<R>> type() {
-            return (Class<Optional<R>>) (Class<?>) Optional.class;
-        }
-
-        @Override
-        @SuppressWarnings("unchecked")
         public Optional<R> convert(Object response) {
             if (response == null) {
                 return Optional.empty();
             }
 
             if (responseType.isAssignableFrom(response.getClass())) {
-                return Optional.of((R) response);
+                return Optional.of(responseType.cast(response));
             }
 
             return Optional.empty();
         }
     }
 
+    class PageResponseType<R> implements ResponseType<Page<R>> {
+        private final Class<R> responseType;
+
+        public PageResponseType(Class<R> responseType) {
+            this.responseType = responseType;
+        }
+
+        @Override
+        public Page<R> convert(Object response) {
+            if (isNull(response)) {
+                return new Page<>(List.of(), 0, 0, 0, 0);
+            }
+
+            if (response instanceof Page<?> pageResponse) {
+                final List<R> filteredContent = pageResponse.content().stream()
+                        .filter(item -> responseType.isAssignableFrom(item.getClass()))
+                        .map(responseType::cast)
+                        .collect(Collectors.toList());
+
+                return new Page<>(filteredContent, pageResponse.totalItems(), pageResponse.totalPages(), pageResponse.pageNumber(), pageResponse.pageNumber());
+            }
+
+            throw new IllegalArgumentException("Cannot convert response to a paginated response of " + responseType.getName());
+        }
+    }
 }

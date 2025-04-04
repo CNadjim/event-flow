@@ -1,12 +1,10 @@
 package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
-import io.github.cnadjim.eventflow.core.domain.EventWrapper;
+import io.github.cnadjim.eventflow.core.domain.Event;
 import org.apache.commons.collections.CollectionUtils;
 import io.github.cnadjim.eventflow.core.spi.EventStore;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -20,12 +18,12 @@ import static java.util.Objects.nonNull;
 @Stub
 public class InMemoryEventStore implements EventStore {
 
-    private final ConcurrentMap<String, CopyOnWriteArrayList<EventWrapper>> eventsMap = new ConcurrentHashMap<>();
+    private final ConcurrentMap<String, CopyOnWriteArrayList<Event>> eventsMap = new ConcurrentHashMap<>();
 
     @Override
-    public void save(EventWrapper event) {
+    public void save(Event event) {
         if (nonNull(event)) {
-            eventsMap.compute(event.aggregateId(), (k, existingList) -> {
+            eventsMap.compute(event.aggregateId(), (newAggregateId, existingList) -> {
                 if (isNull(existingList)) {
                     existingList = new CopyOnWriteArrayList<>();
                 }
@@ -35,37 +33,25 @@ public class InMemoryEventStore implements EventStore {
         }
     }
 
-    @Override
-    public void saveAll(List<EventWrapper> events) {
-        if (CollectionUtils.isEmpty(events)) {
-            return;
-        }
 
-        for (EventWrapper event : events) {
-            String key = event.aggregateId();
-            eventsMap.compute(key, (k, existingList) -> {
-                if (isNull(existingList)) {
-                    existingList = new CopyOnWriteArrayList<>();
-                }
-                existingList.add(event);
-                return existingList;
-            });
-        }
+    @Override
+    public void deleteAllByAggregateId(String aggregateId) {
+        eventsMap.remove(aggregateId);
     }
 
     @Override
-    public List<EventWrapper> findAllByAggregateIdOrderByTimestampAsc(String aggregateId) {
+    public List<Event> findAllByAggregateIdOrderByTimestampAsc(String aggregateId) {
         return eventsMap.getOrDefault(aggregateId, new CopyOnWriteArrayList<>())
                 .stream()
-                .sorted(Comparator.comparing(EventWrapper::timestamp))
+                .sorted(Comparator.comparing(Event::timestamp))
                 .collect(Collectors.toList());
     }
 
     @Override
-    public List<EventWrapper> findAllByAggregateIdOrderByTimestampAscStartFrom(String aggregateId, int startFrom) {
+    public List<Event> findAllByAggregateIdOrderByTimestampAscStartFrom(String aggregateId, int startFrom) {
         return eventsMap.getOrDefault(aggregateId, new CopyOnWriteArrayList<>())
                 .stream()
-                .sorted(Comparator.comparing(EventWrapper::timestamp))
+                .sorted(Comparator.comparing(Event::timestamp))
                 .skip(startFrom)
                 .collect(Collectors.toList());
     }

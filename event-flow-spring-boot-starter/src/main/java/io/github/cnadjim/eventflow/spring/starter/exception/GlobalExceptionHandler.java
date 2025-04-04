@@ -1,32 +1,26 @@
 package io.github.cnadjim.eventflow.spring.starter.exception;
 
 
+import io.github.cnadjim.eventflow.core.domain.Error;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowException;
-import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(EventFlowException.class)
-    public ResponseEntity<ExceptionResponse> handleServiceException(EventFlowException eventFlowException) {
-        final Throwable rootCause = ExceptionUtils.getRootCause(eventFlowException);
-        if (Objects.nonNull(rootCause) && rootCause instanceof BaseException) {
-            return handleServiceException((BaseException) rootCause);
-        }
-        final ExceptionResponse exceptionResponse = ExceptionResponse.create(eventFlowException);
+    public ResponseEntity<ExceptionResponse> handleException(EventFlowException exception) {
+        final Error error = exception;
+        final ExceptionResponse exceptionResponse = ExceptionResponse.create(error);
         return new ResponseEntity<>(exceptionResponse, HttpStatus.valueOf(exceptionResponse.status()));
     }
 

@@ -1,15 +1,10 @@
 package io.github.cnadjim.eventflow.spring.kafka.starter;
 
-import io.github.cnadjim.eventflow.spring.kafka.starter.config.EventFlowConfig;
-import io.github.cnadjim.eventflow.spring.kafka.starter.config.KafkaConfig;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 
 @AutoConfiguration
-@Import({
-        EventFlowConfig.class,
-        KafkaConfig.class,
-})
+@ComponentScan(basePackageClasses = EventFlowKafkaAutoConfiguration.class)
 public class EventFlowKafkaAutoConfiguration {
 
 }

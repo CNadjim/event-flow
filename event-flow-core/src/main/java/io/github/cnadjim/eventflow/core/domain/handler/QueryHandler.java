@@ -1,15 +1,26 @@
 package io.github.cnadjim.eventflow.core.domain.handler;
 
-import io.github.cnadjim.eventflow.core.domain.QueryWrapper;
-import io.github.cnadjim.eventflow.core.domain.exception.handler.QueryHandlerExecutionException;
+import io.github.cnadjim.eventflow.core.domain.Query;
+import io.github.cnadjim.eventflow.core.domain.exception.HandlerExecutionException;
 
 import java.lang.reflect.Method;
 
-@FunctionalInterface
-public interface QueryHandler extends HandlerInvoker {
-    Object handle(QueryWrapper query) throws QueryHandlerExecutionException;
+public interface QueryHandler extends Handler {
+    Object handle(Query query) throws HandlerExecutionException;
 
-    static QueryHandler create(Object instance, Method method) {
-        return (query) -> HandlerInvoker.invoke(instance, method, query.payload());
+    static QueryHandler create(Class<?> payloadClass, Object instance, Method method) {
+
+        return new QueryHandler() {
+
+            @Override
+            public Class<?> payloadClass() {
+                return payloadClass;
+            }
+
+            @Override
+            public Object handle(Query query) throws HandlerExecutionException {
+                return invoke(instance, method, query.payload());
+            }
+        };
     }
 }

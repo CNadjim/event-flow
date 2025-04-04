@@ -7,6 +7,7 @@ import io.github.cnadjim.eventflow.spring.starter.jackson.InstantDeserializer;
 import io.github.cnadjim.eventflow.spring.starter.jackson.InstantSerializer;
 import io.github.cnadjim.eventflow.spring.starter.jackson.LocalDateTimeSerializer;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -22,6 +23,7 @@ import static com.fasterxml.jackson.databind.DeserializationFeature.FAIL_ON_UNKN
 import static com.fasterxml.jackson.databind.SerializationFeature.FAIL_ON_EMPTY_BEANS;
 import static com.fasterxml.jackson.databind.SerializationFeature.WRITE_DATES_AS_TIMESTAMPS;
 
+@Configuration
 public class JacksonConfig {
 
     public final static String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
@@ -31,7 +33,6 @@ public class JacksonConfig {
             .ofPattern(DATE_FORMAT)
             .withLocale(Locale.FRANCE)
             .withZone(ZONE_ID);
-
 
     @Bean
     public ObjectMapper objectMapper() {

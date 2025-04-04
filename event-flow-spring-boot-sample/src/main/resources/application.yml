@@ -1,5 +1,5 @@
 server:
-  port: 8090
+  port: 0
 
 springdoc:
   swagger-ui:
@@ -10,8 +10,7 @@ spring:
     name: sample-application
   kafka:
     bootstrap-servers: localhost:9092
-    consumer:
-      group-id: ${spring.application.name}
+
   data:
     mongodb:
       host: localhost
@@ -20,9 +19,11 @@ spring:
       username: root
       password: root
       authentication-database: admin
+      auto-index-creation: true
 
 logging:
   level:
+    io.github.cnadjim: DEBUG
     org.springframework.context.support: ERROR
     org.mongodb: ERROR
     org.apache.kafka: ERROR

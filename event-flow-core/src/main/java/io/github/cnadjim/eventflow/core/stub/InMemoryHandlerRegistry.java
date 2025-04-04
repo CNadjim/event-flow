@@ -1,7 +1,6 @@
 package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
-import io.github.cnadjim.eventflow.core.domain.exception.handler.HandlerNotFoundException;
 import io.github.cnadjim.eventflow.core.domain.handler.*;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
 
@@ -9,6 +8,7 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Stub
@@ -20,15 +20,19 @@ public class InMemoryHandlerRegistry implements HandlerRegistry {
     private final ConcurrentMap<Class<?>, EventSourcingHandler> eventSourcingHandlers = new ConcurrentHashMap<>();
 
     @Override
-    public void registerHandler(Class<?> messageClass, HandlerInvoker handler) {
-        if (nonNull(messageClass) && nonNull(handler)) {
-            switch (handler) {
-                case CommandHandler commandHandler -> commandHandlers.put(messageClass, commandHandler);
-                case QueryHandler queryHandler -> queryHandlers.put(messageClass, queryHandler);
-                case EventHandler eventHandler -> eventHandlers.put(messageClass, eventHandler);
-                case EventSourcingHandler eventSourcingHandler -> eventSourcingHandlers.put(messageClass, eventSourcingHandler);
-                default -> throw new IllegalStateException("Unexpected value: " + handler);
-            }
+    public void registerHandler(Handler handler) {
+        if (isNull(handler)) throw new IllegalArgumentException("Handler cannot be null");
+
+        final Class<?> payloadClass = handler.payloadClass();
+
+        if (isNull(payloadClass)) throw new IllegalArgumentException("PayloadClass cannot be null");
+
+        switch (handler) {
+            case CommandHandler commandHandler -> commandHandlers.put(payloadClass, commandHandler);
+            case QueryHandler queryHandler -> queryHandlers.put(payloadClass, queryHandler);
+            case EventHandler eventHandler -> eventHandlers.put(payloadClass, eventHandler);
+            case EventSourcingHandler eventSourcingHandler -> eventSourcingHandlers.put(payloadClass, eventSourcingHandler);
+            default -> throw new IllegalStateException("Unexpected value: " + handler);
         }
     }
 
@@ -52,24 +56,5 @@ public class InMemoryHandlerRegistry implements HandlerRegistry {
         return Optional.ofNullable(queryHandlers.get(messagePayloadClass));
     }
 
-    @Override
-    public EventHandler getEventHandler(Class<?> messagePayloadClass) throws HandlerNotFoundException {
-        return findEventHandler(messagePayloadClass).orElseThrow(() -> new HandlerNotFoundException(EventHandler.class.getSimpleName(), messagePayloadClass.getSimpleName()));
-    }
-
-    @Override
-    public QueryHandler getQueryHandler(Class<?> messagePayloadClass) throws HandlerNotFoundException {
-        return findQueryHandler(messagePayloadClass).orElseThrow(() -> new HandlerNotFoundException(QueryHandler.class.getSimpleName(), messagePayloadClass.getSimpleName()));
-    }
-
-    @Override
-    public CommandHandler getCommandHandler(Class<?> messagePayloadClass) throws HandlerNotFoundException {
-        return findCommandHandler(messagePayloadClass).orElseThrow(() -> new HandlerNotFoundException(CommandHandler.class.getSimpleName(), messagePayloadClass.getSimpleName()));
-    }
-
-    @Override
-    public EventSourcingHandler getEventSourcingHandler(Class<?> messagePayloadClass) throws HandlerNotFoundException {
-        return findEventSourcingHandler(messagePayloadClass).orElseThrow(() -> new HandlerNotFoundException(EventSourcingHandler.class.getSimpleName(), messagePayloadClass.getSimpleName()));
-    }
 
 }

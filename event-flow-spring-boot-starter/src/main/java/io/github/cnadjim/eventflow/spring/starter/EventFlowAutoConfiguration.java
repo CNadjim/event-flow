@@ -1,18 +1,9 @@
 package io.github.cnadjim.eventflow.spring.starter;
 
-import io.github.cnadjim.eventflow.spring.starter.config.EventFlowConfig;
-import io.github.cnadjim.eventflow.spring.starter.config.JacksonConfig;
-import io.github.cnadjim.eventflow.spring.starter.exception.GlobalExceptionHandler;
-import io.github.cnadjim.eventflow.spring.starter.listener.ApplicationReadyListener;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
-import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.ComponentScan;
 
 @AutoConfiguration
-@Import(value = {
-        JacksonConfig.class,
-        EventFlowConfig.class,
-        GlobalExceptionHandler.class,
-        ApplicationReadyListener.class
-})
+@ComponentScan(basePackageClasses = EventFlowAutoConfiguration.class)
 public class EventFlowAutoConfiguration {
 }

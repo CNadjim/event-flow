@@ -2,193 +2,175 @@ package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.annotation.*;
 import io.github.cnadjim.eventflow.core.api.RegisterHandler;
-import io.github.cnadjim.eventflow.core.domain.exception.EventFlowIllegalArgumentException;
-import io.github.cnadjim.eventflow.core.domain.exception.ScanPackageExecutionException;
+import io.github.cnadjim.eventflow.core.api.ScanObject;
+import io.github.cnadjim.eventflow.core.api.ScanPackage;
 import io.github.cnadjim.eventflow.core.domain.handler.*;
-import io.github.cnadjim.eventflow.core.spi.EventSubscriber;
+import io.github.cnadjim.eventflow.core.service.dispatcher.CommandDispatcher;
+import io.github.cnadjim.eventflow.core.service.dispatcher.EventDispatcher;
+import io.github.cnadjim.eventflow.core.service.dispatcher.QueryDispatcher;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.net.URL;
-import java.net.URLDecoder;
-import java.nio.charset.StandardCharsets;
-import java.util.Enumeration;
-import java.util.Optional;
+import java.util.*;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @DomainService
-public class HandlerService implements RegisterHandler {
-    private final EventSubscriber eventSubscriber;
+public class HandlerService implements RegisterHandler, ScanPackage, ScanObject {
     private final HandlerRegistry handlerRegistry;
 
-    public HandlerService(EventSubscriber eventSubscriber,
-                           HandlerRegistry handlerRegistry) {
-        this.eventSubscriber = eventSubscriber;
+    private final EventDispatcher eventDispatcher;
+    private final QueryDispatcher queryDispatcher;
+    private final CommandDispatcher commandDispatcher;
+
+    public HandlerService(HandlerRegistry handlerRegistry,
+                          EventDispatcher eventDispatcher,
+                          QueryDispatcher queryDispatcher,
+                          CommandDispatcher commandDispatcher) {
         this.handlerRegistry = handlerRegistry;
+        this.eventDispatcher = eventDispatcher;
+        this.queryDispatcher = queryDispatcher;
+        this.commandDispatcher = commandDispatcher;
     }
 
     @Override
-    public <HANDLER extends HandlerInvoker> void registerHandler(Class<?> messagePayloadClass, HANDLER handler) {
-        switch (handler){
-            case EventHandler eventHandler -> registerEventHandler(messagePayloadClass, eventHandler);
-            case QueryHandler queryHandler -> registerQueryHandler(messagePayloadClass, queryHandler);
-            case CommandHandler commandHandler -> registerCommandHandler(messagePayloadClass, commandHandler);
-            case EventSourcingHandler eventSourcingHandler -> registerEventSourcingHandler(messagePayloadClass, eventSourcingHandler);
-            default -> throw new EventFlowIllegalArgumentException("Unexpected value: " + handler);
+    public <HANDLER extends Handler> void register(HANDLER handler) {
+
+        if (isNull(handler)) throw new IllegalArgumentException("handler cannot be null");
+
+        final Class<?> payloadClass = handler.payloadClass();
+
+        if (isNull(payloadClass)) throw new IllegalArgumentException("payloadClass cannot be null");
+
+        switch (handler) {
+            case EventHandler eventHandler -> {
+                handlerRegistry.registerHandler(eventHandler);
+                eventDispatcher.subscribe(payloadClass);
+            }
+            case QueryHandler queryHandler -> {
+                handlerRegistry.registerHandler(queryHandler);
+                queryDispatcher.subscribe(payloadClass);
+            }
+            case CommandHandler commandHandler -> {
+                handlerRegistry.registerHandler(commandHandler);
+                commandDispatcher.subscribe(payloadClass);
+            }
+            case EventSourcingHandler eventSourcingHandler -> {
+                handlerRegistry.registerHandler(eventSourcingHandler);
+            }
+            default -> throw new IllegalArgumentException("Unexpected value: " + handler);
         }
     }
 
-    private void registerCommandHandler(Class<?> messagePayloadClass, CommandHandler commandHandler) {
-        handlerRegistry.registerHandler(messagePayloadClass, commandHandler);
-    }
-
-    private void registerEventHandler(Class<?> messagePayloadClass, EventHandler eventHandler) {
-        eventSubscriber.subscribe(messagePayloadClass.getSimpleName());
-        handlerRegistry.registerHandler(messagePayloadClass, eventHandler);
-    }
-
-    private void registerQueryHandler(Class<?> messagePayloadClass, QueryHandler queryHandler) {
-        handlerRegistry.registerHandler(messagePayloadClass, queryHandler);
-    }
-
-    private void registerEventSourcingHandler(Class<?> messagePayloadClass, EventSourcingHandler eventSourcingHandler) {
-        eventSubscriber.subscribe(messagePayloadClass.getSimpleName());
-        handlerRegistry.registerHandler(messagePayloadClass, eventSourcingHandler);
-    }
-
     @Override
-    public void scanInstance(Object instance) {
-        if (instance == null) {
-            return;
+    public Collection<Handler> scan(Object instance) {
+        final Collection<Handler> handlers = new ArrayList<>();
+
+        if (isNull(instance)) {
+            return handlers;
         }
 
         final Class<?> clazz = instance.getClass();
+
         for (Method method : clazz.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(HandleEvent.class)) {
-                Class<?> eventType = method.getParameterTypes()[0];
-                EventHandler eventHandler = EventHandler.create(instance, method);
-                registerEventHandler(eventType, eventHandler);
-            } else if (method.isAnnotationPresent(HandleQuery.class)) {
-                Class<?> eventType = method.getParameterTypes()[0];
-                QueryHandler queryHandler = QueryHandler.create(instance, method);
-                registerQueryHandler(eventType, queryHandler);
-            } else if (method.isAnnotationPresent(HandleCommand.class)) {
-                Class<?> eventType = method.getParameterTypes()[0];
-                CommandHandler commandHandler = CommandHandler.create(instance, method);
-                registerCommandHandler(eventType, commandHandler);
-            } else if(method.isAnnotationPresent(ApplyEvent.class)) {
-                Class<?> eventType = method.getParameterTypes()[0];
-                EventSourcingHandler eventSourcingHandler = EventSourcingHandler.create(instance, method);
-                registerEventSourcingHandler(eventType, eventSourcingHandler);
-            }
-        }
-    }
+            final Class<?>[] methodParameterTypes = method.getParameterTypes();
 
-    @Override
-    public void scanPackage(String packageName) {
-        try {
-            ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
-            String path = packageName.replace('.', '/');
+            if (methodParameterTypes.length > 0) {
+                final Class<?> messagePayloadClass = method.getParameterTypes()[0];
 
-            Enumeration<URL> resources = classLoader.getResources(path);
-            while (resources.hasMoreElements()) {
-                URL resource = resources.nextElement();
-                String decodedPath = URLDecoder.decode(resource.getFile(), StandardCharsets.UTF_8);
-                File file = new File(decodedPath);
-                if (file.isDirectory()) {
-                    processDirectory(packageName, file);
+                if (method.isAnnotationPresent(HandleEvent.class)) {
+                    final EventHandler eventHandler = EventHandler.create(messagePayloadClass, instance, method);
+                    handlers.add(eventHandler);
+                } else if (method.isAnnotationPresent(HandleQuery.class)) {
+                    final QueryHandler queryHandler = QueryHandler.create(messagePayloadClass, instance, method);
+                    handlers.add(queryHandler);
+                } else if (method.isAnnotationPresent(HandleCommand.class)) {
+                    final CommandHandler commandHandler = CommandHandler.create(messagePayloadClass, instance, method);
+                    handlers.add(commandHandler);
+                } else if (method.isAnnotationPresent(ApplyEvent.class)) {
+                    final EventSourcingHandler eventSourcingHandler = EventSourcingHandler.create(messagePayloadClass, instance, method);
+                    handlers.add(eventSourcingHandler);
                 }
             }
-        } catch (IOException e) {
-            throw new RuntimeException("Package scan failed", e);
         }
+
+        return handlers;
     }
 
-    private void processDirectory(String pkg, File directory) {
-        File[] files = directory.listFiles();
-        if (files == null) return;
 
-        for (File file : files) {
-            if (file.isDirectory()) {
-                processDirectory(pkg + "." + file.getName(), file);
-            } else if (file.getName().endsWith(".class")) {
-                processClassFile(pkg, file);
-            }
-        }
-    }
+    @Override
+    public Collection<Handler> scan(String packageName) {
+        final List<Handler> handlers = new ArrayList<>();
 
-    private void processClassFile(String pkg, File file) {
-        final String className = pkg + '.' + file.getName().replace(".class", "");
         try {
-            Class<?> clazz = Class.forName(className);
-            registerCommandHandlers(clazz);
-            registerEventSourcingHandlers(clazz);
-            registerEventHandlers(clazz);
-            registerQueryHandlers(clazz);
-        } catch (Exception exception) {
-            throw new ScanPackageExecutionException(exception);
-        }
-    }
+            final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+            final String path = packageName.replace('.', '/');
+            final Enumeration<URL> resources = classLoader.getResources(path);
 
-    private void registerQueryHandlers(Class<?> clazz) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(HandleQuery.class)) {
-                Class<?> queryType = method.getParameterTypes()[0];
-                instance(clazz).ifPresent(instance -> {
-                    QueryHandler queryHandler = QueryHandler.create(instance, method);
-                    registerQueryHandler(queryType, queryHandler);
-                });
+            final List<File> dirs = new ArrayList<>();
+
+            while (resources.hasMoreElements()) {
+                URL resource = resources.nextElement();
+                dirs.add(new File(resource.getFile()));
             }
-        }
-    }
 
-    private void registerCommandHandlers(Class<?> clazz) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(HandleCommand.class)) {
-                Class<?> commandType = method.getParameterTypes()[0];
-                instance(clazz).ifPresent(instance -> {
-                    CommandHandler commandHandler = CommandHandler.create(instance, method);
-                    registerCommandHandler(commandType, commandHandler);
-                });
+            for (File directory : dirs) {
+                handlers.addAll(findHandlers(directory, packageName));
             }
+
+        } catch (IOException ignored) {
         }
+
+        return handlers;
     }
 
-    private void registerEventSourcingHandlers(Class<?> clazz) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(ApplyEvent.class)) {
-                Class<?> eventType = method.getParameterTypes()[0];
-                instance(clazz).ifPresent(instance -> {
-                    EventSourcingHandler eventSourcingHandler = EventSourcingHandler.create(instance, method);
-                    registerEventSourcingHandler(eventType, eventSourcingHandler);
-                });
-            }
-        }
-    }
-
-    private void registerEventHandlers(Class<?> clazz) {
-        for (Method method : clazz.getDeclaredMethods()) {
-            if (method.isAnnotationPresent(HandleEvent.class)) {
-                Class<?> eventType = method.getParameterTypes()[0];
-                instance(clazz).ifPresent(instance -> {
-                    EventHandler eventHandler = EventHandler.create(instance, method);
-                    registerEventHandler(eventType, eventHandler);
-                });
-            }
-        }
-    }
-
-    public static Optional<Object> instance(Class<?> clazz) {
+    private static Optional<Object> tryCreateInstance(Class<?> clazz) {
         try {
-            Constructor<?> constructor = clazz.getDeclaredConstructor();
+            final Constructor<?> constructor = clazz.getDeclaredConstructor();
             constructor.setAccessible(true);
             return Optional.of(constructor.newInstance());
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException |
-                 InvocationTargetException ignored) {
+        } catch (Exception exception) {
             return Optional.empty();
         }
+    }
+
+
+    private List<Handler> findHandlers(File directory, String packageName) {
+        List<Handler> handlers = new ArrayList<>();
+
+        if (!directory.exists()) {
+            return handlers;
+        }
+
+        final File[] files = directory.listFiles();
+
+        if (nonNull(files)) {
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    handlers.addAll(findHandlers(file, packageName + "." + file.getName()));
+                } else if (file.getName().endsWith(".class")) {
+                    final String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 6);
+                    try {
+                        final Class<?> clazz = Class.forName(className);
+                        if (isNotInterfaceOrAbstract(clazz)) {
+                            tryCreateInstance(clazz).ifPresent(instance -> handlers.addAll(scan(instance)));
+                        }
+                    } catch (ClassNotFoundException ignored) {
+                    }
+                }
+            }
+        }
+
+        return handlers;
+    }
+
+    private boolean isNotInterfaceOrAbstract(Class<?> clazz) {
+        return !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
     }
 }

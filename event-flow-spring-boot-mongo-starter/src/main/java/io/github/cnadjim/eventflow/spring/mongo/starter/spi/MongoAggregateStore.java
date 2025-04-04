@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.spring.mongo.starter.spi;
 
-import io.github.cnadjim.eventflow.core.domain.AggregateWrapper;
+import io.github.cnadjim.eventflow.core.domain.Aggregate;
 import io.github.cnadjim.eventflow.core.spi.AggregateStore;
 import io.github.cnadjim.eventflow.spring.mongo.starter.entity.MongoAggregateEntity;
 import io.github.cnadjim.eventflow.spring.mongo.starter.repository.MongoAggregateEntityRepository;
@@ -18,15 +18,20 @@ public class MongoAggregateStore implements AggregateStore {
 
     @Override
     @Transactional
-    public void save(AggregateWrapper aggregateWrapper) {
+    public void save(Aggregate aggregateWrapper) {
         Optional.ofNullable(aggregateWrapper)
                 .map(MongoAggregateEntity::fromAggregate)
                 .ifPresent(mongoAggregateEntityRepository::save);
     }
 
     @Override
+    public void deleteAllByAggregateId(String aggregateId) {
+        mongoAggregateEntityRepository.deleteAllByAggregateId(aggregateId);
+    }
+
+    @Override
     @Transactional(readOnly = true)
-    public Optional<AggregateWrapper> findTopByAggregateIdOrderByVersionDesc(String aggregateId) {
+    public Optional<Aggregate> findTopByAggregateIdOrderByVersionDesc(String aggregateId) {
         return mongoAggregateEntityRepository
                 .findTopByAggregateIdOrderByVersionDesc(aggregateId)
                 .map(MongoAggregateEntity::toAggregate);

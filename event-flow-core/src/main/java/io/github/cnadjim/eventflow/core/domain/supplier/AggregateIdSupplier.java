@@ -10,8 +10,6 @@ import static java.util.Objects.isNull;
 @FunctionalInterface
 public interface AggregateIdSupplier {
 
-    String AGGREGATE_ID_FIELD = "aggregateId";
-
     String aggregateId();
 
     static String create() {

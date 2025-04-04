@@ -1,8 +1,8 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.annotation.DomainService;
-import io.github.cnadjim.eventflow.core.domain.AggregateWrapper;
-import io.github.cnadjim.eventflow.core.domain.EventWrapper;
+import io.github.cnadjim.eventflow.core.domain.Aggregate;
+import io.github.cnadjim.eventflow.core.domain.Event;
 import io.github.cnadjim.eventflow.core.domain.handler.EventSourcingHandler;
 import io.github.cnadjim.eventflow.core.spi.AggregateStore;
 import io.github.cnadjim.eventflow.core.spi.EventStore;
@@ -14,10 +14,11 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.concurrent.atomic.AtomicLong;
 
+import static java.util.Objects.isNull;
+
 @Slf4j
 @DomainService
 public class AggregateService {
-
 
     private final EventStore eventStore;
     private final AggregateStore aggregateStore;
@@ -32,27 +33,30 @@ public class AggregateService {
     }
 
 
-    AggregateWrapper loadAggregateState(String aggregateId, Collection<EventWrapper> events) {
+    public Aggregate loadAggregateState(String aggregateId, Collection<Event> events) {
 
-        AggregateWrapper aggregate = loadPreviousAggregateState(aggregateId);
+        Aggregate aggregate = loadPreviousAggregateState(aggregateId);
 
-        for (EventWrapper event : events) {
+        for (Event event : events) {
             final EventSourcingHandler eventSourcingHandler = handlerRegistry.getEventSourcingHandler(event.payloadClass());
             aggregate = eventSourcingHandler.apply(event, aggregate);
         }
 
-        if (aggregate.isSnapshotEnabled() && aggregate.version() % aggregate.threshold() == 0) {
+        if (isNull(aggregate.payload())) {
+            eventStore.deleteAllByAggregateId(aggregateId);
+            aggregateStore.deleteAllByAggregateId(aggregateId);
+        } else if (aggregate.isSnapshotEnabled() && aggregate.version() % aggregate.threshold() == 0) {
             aggregateStore.save(aggregate);
         }
 
         return aggregate;
     }
 
-    private AggregateWrapper loadPreviousAggregateState(String aggregateId) {
+    private Aggregate loadPreviousAggregateState(String aggregateId) {
         final Instant startTime = Instant.now();
-        AggregateWrapper aggregate = aggregateStore.findTopByAggregateIdOrderByVersionDesc(aggregateId).orElseGet(() -> AggregateWrapper.create(aggregateId));
+        Aggregate aggregate = aggregateStore.findTopByAggregateIdOrderByVersionDesc(aggregateId).orElseGet(() -> Aggregate.create(aggregateId));
 
-        final Iterable<EventWrapper> events;
+        final Iterable<Event> events;
 
         if (aggregate.isSnapshotEnabled()) {
             events = eventStore.findAllByAggregateIdOrderByTimestampAscStartFrom(aggregateId, aggregate.version().intValue());
@@ -62,7 +66,7 @@ public class AggregateService {
 
         final AtomicLong counter = new AtomicLong(0);
 
-        for (EventWrapper event : events) {
+        for (Event event : events) {
             final EventSourcingHandler eventSourcingHandler = handlerRegistry.getEventSourcingHandler(event.payloadClass());
             aggregate = eventSourcingHandler.apply(event, aggregate);
             counter.incrementAndGet();

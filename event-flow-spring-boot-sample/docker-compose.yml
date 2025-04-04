@@ -5,6 +5,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
+    volumes:
+      - "mongo_data:/data/db"
     ports:
       - "27017:27017"
 
@@ -62,6 +64,8 @@ services:
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
 volumes:
+  mongo_data:
+    driver: local
   zookeeper_data:
     driver: local
   kafka_data:

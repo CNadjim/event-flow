@@ -1,21 +1,54 @@
 package io.github.cnadjim.eventflow.core.domain.exception;
 
-public abstract class EventFlowException extends RuntimeException {
+import io.github.cnadjim.eventflow.core.domain.Error;
+import lombok.Getter;
 
-    public EventFlowException() {
-        super();
-    }
+import java.time.Instant;
 
-    public EventFlowException(String message) {
-        super(message);
-    }
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
-    public EventFlowException(String message, Throwable cause) {
-        super(message, cause);
+@Getter
+public class EventFlowException extends RuntimeException implements Error {
+
+    private final Error error;
+
+    public EventFlowException(Error error) {
+        if (isNull(error)) throw new IllegalArgumentException("Error cannot be null");
+        this.error = error;
     }
 
     public EventFlowException(Throwable cause) {
         super(cause);
+        this.error = null;
     }
 
+    public boolean hasError(){
+        return nonNull(error);
+    }
+
+    @Override
+    public Instant timestamp() {
+        return error.timestamp();
+    }
+
+    @Override
+    public Integer status() {
+        return error.status();
+    }
+
+    @Override
+    public String reasonPhrase() {
+        return error.reasonPhrase();
+    }
+
+    @Override
+    public String message() {
+        return error.message();
+    }
+
+    @Override
+    public Object details() {
+        return error.details();
+    }
 }

@@ -1,15 +1,14 @@
 package io.github.cnadjim.eventflow.spring.mongo.starter.spi;
 
-import io.github.cnadjim.eventflow.core.domain.EventWrapper;
+import io.github.cnadjim.eventflow.core.domain.Event;
 import io.github.cnadjim.eventflow.core.spi.EventStore;
 import io.github.cnadjim.eventflow.spring.mongo.starter.entity.MongoEventEntity;
 import io.github.cnadjim.eventflow.spring.mongo.starter.repository.MongoEventEntityRepository;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-
-import static java.util.Objects.nonNull;
+import java.util.List;
+import java.util.Optional;
 
 public class MongoEventStore implements EventStore {
 
@@ -21,26 +20,20 @@ public class MongoEventStore implements EventStore {
 
     @Override
     @Transactional
-    public void save(EventWrapper event) {
+    public void save(Event event) {
         Optional.ofNullable(event)
                 .map(MongoEventEntity::fromEvent)
                 .ifPresent(eventEntityRepository::save);
     }
 
     @Override
-    @Transactional
-    public void saveAll(List<EventWrapper> events) {
-        final Collection<MongoEventEntity> eventEntities = Optional.ofNullable(events)
-                .orElse(Collections.emptyList())
-                .stream()
-                .map(MongoEventEntity::fromEvent)
-                .toList();
-        eventEntityRepository.saveAll(eventEntities);
+    public void deleteAllByAggregateId(String aggregateId) {
+        eventEntityRepository.deleteAllByAggregateId(aggregateId);
     }
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventWrapper> findAllByAggregateIdOrderByTimestampAsc(String aggregateId) {
+    public List<Event> findAllByAggregateIdOrderByTimestampAsc(String aggregateId) {
         return eventEntityRepository.findAllByAggregateIdOrderByTimestampAsc(aggregateId)
                 .stream()
                 .map(MongoEventEntity::toEvent)
@@ -49,7 +42,7 @@ public class MongoEventStore implements EventStore {
 
     @Override
     @Transactional(readOnly = true)
-    public List<EventWrapper> findAllByAggregateIdOrderByTimestampAscStartFrom(String aggregateId, int startFrom) {
+    public List<Event> findAllByAggregateIdOrderByTimestampAscStartFrom(String aggregateId, int startFrom) {
         return eventEntityRepository.findAllByAggregateIdOrderByTimestampAsc(aggregateId, PageRequest.of(1, startFrom))
                 .stream()
                 .map(MongoEventEntity::toEvent)

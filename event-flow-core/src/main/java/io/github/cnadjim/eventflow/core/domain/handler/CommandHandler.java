@@ -1,38 +1,44 @@
 package io.github.cnadjim.eventflow.core.domain.handler;
 
-import io.github.cnadjim.eventflow.core.domain.CommandWrapper;
-import io.github.cnadjim.eventflow.core.domain.EventWrapper;
-import io.github.cnadjim.eventflow.core.domain.exception.handler.CommandHandlerExecutionException;
+import io.github.cnadjim.eventflow.core.domain.Command;
+import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.exception.HandlerExecutionException;
 
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.github.cnadjim.eventflow.core.domain.handler.HandlerInvoker.invoke;
 import static java.util.Objects.nonNull;
 
-@FunctionalInterface
-public interface CommandHandler extends HandlerInvoker {
-    List<EventWrapper> handle(CommandWrapper command) throws CommandHandlerExecutionException;
+public interface CommandHandler extends Handler {
+    List<Event> handle(Command command) throws HandlerExecutionException;
 
-    static CommandHandler create(Object instance, Method method) {
-        return (command) -> {
+    static CommandHandler create(Class<?> payloadClass, Object instance, Method method) {
+        return new CommandHandler() {
 
-            final Object payload = command.payload();
-            final Object result = invoke(instance, method, payload);
-            final List<EventWrapper> events = new ArrayList<>();
-
-            if (result instanceof List<?> results) {
-                for (Object event : results) {
-                    events.add(EventWrapper.create(event));
-                }
-            } else if (nonNull(result)) {
-                events.add(EventWrapper.create(result));
-            } else {
-                throw new CommandHandlerExecutionException(String.format("Command handler %s returned null or empty result", method.getName()));
+            @Override
+            public Class<?> payloadClass() {
+                return payloadClass;
             }
 
-            return events;
+            @Override
+            public List<Event> handle(Command command) throws HandlerExecutionException {
+                final Object payload = command.payload();
+                final Object result = invoke(instance, method, payload);
+                final List<Event> events = new ArrayList<>();
+
+                if (result instanceof List<?> results) {
+                    for (Object event : results) {
+                        events.add(Event.create(event));
+                    }
+                } else if (nonNull(result)) {
+                    events.add(Event.create(result));
+                } else {
+                    throw new HandlerExecutionException(String.format("Command handler %s returned null or empty result", method.getName()));
+                }
+
+                return events;
+            }
         };
     }
 }

@@ -1,7 +1,11 @@
 package io.github.cnadjim.eventflow.core.api;
 
-import io.github.cnadjim.eventflow.core.domain.EventWrapper;
+import io.github.cnadjim.eventflow.annotation.UseCase;
 
+import java.util.concurrent.CompletableFuture;
+
+@UseCase
 public interface SendEvent {
-    void send(EventWrapper event);
+
+    CompletableFuture<Void> send(Object event);
 }

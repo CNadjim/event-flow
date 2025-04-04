@@ -8,6 +8,5 @@ public class RestException extends BaseException {
 
     public RestException(HttpStatus status, String message) {
         super(status, message);
-        log.error(message, this);
     }
 }

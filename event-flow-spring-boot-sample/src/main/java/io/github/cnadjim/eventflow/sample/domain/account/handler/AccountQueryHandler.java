@@ -1,14 +1,15 @@
 package io.github.cnadjim.eventflow.sample.domain.account.handler;
 
 import io.github.cnadjim.eventflow.annotation.HandleQuery;
+import io.github.cnadjim.eventflow.core.domain.Page;
 import io.github.cnadjim.eventflow.sample.domain.account.entity.MongoAccountEntity;
 import io.github.cnadjim.eventflow.sample.domain.account.exception.AccountNotFoundException;
 import io.github.cnadjim.eventflow.sample.domain.account.query.FindAccountQuery;
 import io.github.cnadjim.eventflow.sample.domain.account.query.FindAllAccountQuery;
 import io.github.cnadjim.eventflow.sample.repository.MongoAccountRepository;
+import io.github.cnadjim.eventflow.spring.starter.pagination.PageAdaptor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Component;
 
@@ -25,6 +26,6 @@ public class AccountQueryHandler {
 
     @HandleQuery
     public Page<MongoAccountEntity> handle(FindAllAccountQuery query) {
-        return mongoAccountRepository.findAll(PageRequest.ofSize(100));
+        return PageAdaptor.ofSpringPage(mongoAccountRepository.findAll(PageRequest.ofSize(100)));
     }
 }
