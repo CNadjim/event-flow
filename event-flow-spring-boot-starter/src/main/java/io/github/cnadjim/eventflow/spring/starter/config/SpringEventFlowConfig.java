@@ -5,6 +5,7 @@ import io.github.cnadjim.eventflow.core.api.SendEvent;
 import io.github.cnadjim.eventflow.core.api.SendQuery;
 import io.github.cnadjim.eventflow.core.service.AggregateService;
 import io.github.cnadjim.eventflow.core.service.HandlerService;
+import io.github.cnadjim.eventflow.core.service.TopicService;
 import io.github.cnadjim.eventflow.core.service.dispatcher.CommandDispatcher;
 import io.github.cnadjim.eventflow.core.service.dispatcher.EventDispatcher;
 import io.github.cnadjim.eventflow.core.service.dispatcher.QueryDispatcher;
@@ -12,10 +13,7 @@ import io.github.cnadjim.eventflow.core.service.gateway.CommandGateway;
 import io.github.cnadjim.eventflow.core.service.gateway.EventGateway;
 import io.github.cnadjim.eventflow.core.service.gateway.QueryGateway;
 import io.github.cnadjim.eventflow.core.spi.*;
-import io.github.cnadjim.eventflow.core.stub.DefaultMessageBus;
-import io.github.cnadjim.eventflow.core.stub.InMemoryAggregateStore;
-import io.github.cnadjim.eventflow.core.stub.InMemoryEventStore;
-import io.github.cnadjim.eventflow.core.stub.InMemoryHandlerRegistry;
+import io.github.cnadjim.eventflow.core.stub.*;
 import io.github.cnadjim.eventflow.spring.starter.exception.SpringErrorConverter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -50,6 +48,19 @@ public class SpringEventFlowConfig {
     }
 
     @Bean
+    @ConditionalOnMissingBean(TopicRegistry.class)
+    public TopicRegistry topicRegistry() {
+        return new InMemoryTopicRegistry();
+    }
+
+
+    @Bean
+    @Primary
+    public TopicService topicService(TopicRegistry topicRegistry) {
+        return new TopicService(topicRegistry);
+    }
+
+    @Bean
     @Primary
     public ErrorConverter errorConverter() {
         return new SpringErrorConverter();
@@ -69,14 +80,14 @@ public class SpringEventFlowConfig {
     public EventDispatcher eventDispatcher(final ErrorConverter errorConverter,
                                            final MessageBus messageBus,
                                            final HandlerRegistry handlerRegistry) {
-        return new EventDispatcher(errorConverter, messageBus, handlerRegistry);
+        return new EventDispatcher(messageBus, errorConverter, handlerRegistry);
     }
 
     @Bean
     @Primary
     public QueryDispatcher queryDispatcher(final ErrorConverter errorConverter, final MessageBus messageBus,
                                            final HandlerRegistry handlerRegistry) {
-        return new QueryDispatcher(errorConverter, messageBus, handlerRegistry);
+        return new QueryDispatcher(messageBus, errorConverter, handlerRegistry);
     }
 
     @Bean
@@ -85,16 +96,18 @@ public class SpringEventFlowConfig {
                                                final EventStore eventStore,
                                                final HandlerRegistry handlerRegistry,
                                                final AggregateService aggregateService) {
-        return new CommandDispatcher(errorConverter, messageBus, eventStore, handlerRegistry, aggregateService);
+        return new CommandDispatcher(messageBus, eventStore, errorConverter, handlerRegistry, aggregateService);
     }
 
     @Bean
+
     @Primary
-    public HandlerService handlerService(final HandlerRegistry handlerRegistry,
+    public HandlerService handlerService(final TopicService topicService,
+                                         final HandlerRegistry handlerRegistry,
                                          final EventDispatcher eventDispatcher,
                                          final QueryDispatcher queryDispatcher,
                                          final CommandDispatcher commandDispatcher) {
-        return new HandlerService(handlerRegistry, eventDispatcher, queryDispatcher, commandDispatcher);
+        return new HandlerService(topicService, handlerRegistry, eventDispatcher, queryDispatcher, commandDispatcher);
     }
 
     @Bean

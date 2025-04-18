@@ -16,6 +16,7 @@
         <module>event-flow-spring-boot-starter</module>
         <module>event-flow-spring-boot-kafka-starter</module>
         <module>event-flow-spring-boot-mongo-starter</module>
+        <module>event-flow-spring-boot-rabbitmq-starter</module>
         <module>event-flow-spring-boot-sample</module>
     </modules>
 
@@ -29,6 +30,7 @@
 
     <properties>
         <kafka.version>3.9.0</kafka.version>
+        <spring.kafka.version>3.3.4</spring.kafka.version>
         <lombok.version>1.18.34</lombok.version>
         <jackson.version>2.18.3</jackson.version>
         <spring-boot.version>3.4.3</spring-boot.version>

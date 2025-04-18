@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.handler;
 
-import io.github.cnadjim.eventflow.core.domain.Command;
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.message.Command;
+import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.domain.exception.HandlerExecutionException;
 
 import java.lang.reflect.Method;

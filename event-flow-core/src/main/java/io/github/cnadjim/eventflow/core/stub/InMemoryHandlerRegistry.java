@@ -55,6 +55,4 @@ public class InMemoryHandlerRegistry implements HandlerRegistry {
     public Optional<QueryHandler> findQueryHandler(Class<?> messagePayloadClass) {
         return Optional.ofNullable(queryHandlers.get(messagePayloadClass));
     }
-
-
 }

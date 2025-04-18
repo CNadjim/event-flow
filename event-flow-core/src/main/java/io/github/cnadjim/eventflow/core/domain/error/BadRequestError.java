@@ -1,7 +1,5 @@
 package io.github.cnadjim.eventflow.core.domain.error;
 
-import io.github.cnadjim.eventflow.core.domain.Error;
-
 import java.time.Instant;
 
 public record BadRequestError(Instant timestamp, String message, Object details) implements Error {

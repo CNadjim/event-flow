@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.spring.starter.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.github.cnadjim.eventflow.core.domain.Error;
+import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.error.InternalServerError;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;

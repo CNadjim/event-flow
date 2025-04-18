@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.spring.kafka.starter.kafka;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.cnadjim.eventflow.core.domain.Message;
+import io.github.cnadjim.eventflow.core.domain.message.Message;
 import lombok.RequiredArgsConstructor;
 import org.apache.kafka.common.errors.SerializationException;
 import org.apache.kafka.common.serialization.Deserializer;

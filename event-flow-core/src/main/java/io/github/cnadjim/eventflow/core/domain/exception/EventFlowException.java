@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.exception;
 
-import io.github.cnadjim.eventflow.core.domain.Error;
+import io.github.cnadjim.eventflow.core.domain.error.Error;
 import lombok.Getter;
 
 import java.time.Instant;

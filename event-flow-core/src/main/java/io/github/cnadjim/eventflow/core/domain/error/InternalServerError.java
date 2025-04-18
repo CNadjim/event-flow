@@ -1,6 +1,5 @@
 package io.github.cnadjim.eventflow.core.domain.error;
 
-import io.github.cnadjim.eventflow.core.domain.Error;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;

@@ -2,7 +2,7 @@ package io.github.cnadjim;
 
 import io.github.cnadjim.customer.*;
 import io.github.cnadjim.eventflow.core.Eventflow;
-import io.github.cnadjim.eventflow.core.domain.ResponseType;
+import io.github.cnadjim.eventflow.core.domain.response.ResponseType;
 import io.github.cnadjim.eventflow.core.spi.AggregateStore;
 import io.github.cnadjim.eventflow.core.spi.EventStore;
 import io.github.cnadjim.eventflow.core.spi.MessageBus;

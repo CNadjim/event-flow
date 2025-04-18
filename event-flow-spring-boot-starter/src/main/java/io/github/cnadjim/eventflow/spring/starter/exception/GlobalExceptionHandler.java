@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.spring.starter.exception;
 
 
-import io.github.cnadjim.eventflow.core.domain.Error;
+import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;

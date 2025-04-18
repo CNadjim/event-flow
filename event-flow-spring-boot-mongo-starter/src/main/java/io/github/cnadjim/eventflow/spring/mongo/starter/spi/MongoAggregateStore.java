@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.spring.mongo.starter.spi;
 
-import io.github.cnadjim.eventflow.core.domain.Aggregate;
+import io.github.cnadjim.eventflow.core.domain.message.Aggregate;
 import io.github.cnadjim.eventflow.core.spi.AggregateStore;
 import io.github.cnadjim.eventflow.spring.mongo.starter.entity.MongoAggregateEntity;
 import io.github.cnadjim.eventflow.spring.mongo.starter.repository.MongoAggregateEntityRepository;

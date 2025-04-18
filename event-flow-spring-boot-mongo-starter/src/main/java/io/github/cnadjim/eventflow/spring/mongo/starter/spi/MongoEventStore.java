@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.spring.mongo.starter.spi;
 
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.spi.EventStore;
 import io.github.cnadjim.eventflow.spring.mongo.starter.entity.MongoEventEntity;
 import io.github.cnadjim.eventflow.spring.mongo.starter.repository.MongoEventEntityRepository;
