@@ -4,6 +4,7 @@ import io.github.cnadjim.eventflow.annotation.*;
 import io.github.cnadjim.eventflow.core.api.RegisterHandler;
 import io.github.cnadjim.eventflow.core.api.ScanObject;
 import io.github.cnadjim.eventflow.core.api.ScanPackage;
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.handler.*;
 import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import io.github.cnadjim.eventflow.core.service.dispatcher.CommandDispatcher;
@@ -64,16 +65,16 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
      * It also creates and saves a topic based on the handler's payload class.
      *
      * @param handler The {@link Handler} to register.  Must not be null.
-     * @throws IllegalArgumentException if the handler or its payload class is null.
+     * @throws BadArgumentException if the handler or its payload class is null.
      */
     @Override
     public <HANDLER extends Handler> void register(HANDLER handler) {
 
-        if (isNull(handler)) throw new IllegalArgumentException("handler cannot be null");
+        if (isNull(handler)) throw new BadArgumentException("handler cannot be null");
 
         final Class<?> payloadClass = handler.payloadClass();
 
-        if (isNull(payloadClass)) throw new IllegalArgumentException("payloadClass cannot be null");
+        if (isNull(payloadClass)) throw new BadArgumentException("payloadClass cannot be null");
 
         final MessageTopic messageTopic = new MessageTopic(payloadClass.getSimpleName());
 
@@ -95,7 +96,7 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
             case EventSourcingHandler eventSourcingHandler -> {
                 handlerRegistry.registerHandler(eventSourcingHandler);
             }
-            default -> throw new IllegalArgumentException("Unexpected value: " + handler);
+            default -> throw new BadArgumentException("Unexpected value: " + handler);
         }
     }
 

@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.error;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
@@ -12,8 +13,8 @@ public record InternalServerError(Instant timestamp, String message, Object deta
     public static String INTERNAL_SERVER_ERROR_REASON_PHRASE = "Internal Server Error";
 
     public InternalServerError {
-        if (isNull(timestamp)) throw new IllegalArgumentException("Timestamp cannot be null");
-        if (StringUtils.isBlank(message)) throw new IllegalArgumentException("Message cannot be blank");
+        if (isNull(timestamp)) throw new BadArgumentException("Timestamp cannot be null");
+        if (StringUtils.isBlank(message)) throw new BadArgumentException("Message cannot be blank");
     }
 
     @Override

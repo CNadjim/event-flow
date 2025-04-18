@@ -1,5 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.response;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
+
 import java.util.Collection;
 import java.util.Collections;
 import java.util.stream.Collectors;
@@ -21,6 +23,6 @@ public record CollectionResponseType<R>(Class<R> responseType) implements Respon
                     .collect(Collectors.toList());
         }
 
-        throw new IllegalArgumentException("Cannot convert response to a collection of " + responseType.getName());
+        throw new BadArgumentException("Cannot convert response to a collection of " + responseType.getName());
     }
 }

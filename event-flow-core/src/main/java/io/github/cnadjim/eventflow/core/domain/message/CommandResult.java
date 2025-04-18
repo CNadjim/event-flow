@@ -1,6 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.message;
 
 import io.github.cnadjim.eventflow.core.domain.error.Error;
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.topic.MessageResultTopic;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,8 +13,8 @@ public record CommandResult(String id,
                             MessageResultTopic resultTopic) implements MessageResult<Command> {
 
     public CommandResult {
-        if (StringUtils.isBlank(id)) throw new IllegalArgumentException("id cannot be empty");
-        if (Objects.isNull(resultTopic)) throw new IllegalArgumentException("resultTopic cannot be null");
+        if (StringUtils.isBlank(id)) throw new BadArgumentException("id cannot be empty");
+        if (Objects.isNull(resultTopic)) throw new BadArgumentException("resultTopic cannot be null");
     }
 
     public static CommandResult success(Command command) {

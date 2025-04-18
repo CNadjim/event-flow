@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.message;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.AggregateIdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.IdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.TimestampSupplier;
@@ -28,12 +29,12 @@ public record Event(String id,
      * Compact constructor for the Event record.
      * Validates that the payload, id, and aggregateId are not null or empty.
      *
-     * @throws IllegalArgumentException if payload is null, id is null, or aggregateId is empty
+     * @throws BadArgumentException if payload is null, id is null, or aggregateId is empty
      */
     public Event {
-        if (isNull(payload)) throw new IllegalArgumentException("Payload cannot be null");
-        if (isNull(id)) throw new IllegalArgumentException("Id cannot be null");
-        if (StringUtils.isBlank(aggregateId)) throw new IllegalArgumentException("AggregateId cannot be null");
+        if (isNull(payload)) throw new BadArgumentException("Payload cannot be null");
+        if (isNull(id)) throw new BadArgumentException("Id cannot be null");
+        if (StringUtils.isBlank(aggregateId)) throw new BadArgumentException("AggregateId cannot be null");
     }
 
     public Event(Object payload) {

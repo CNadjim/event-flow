@@ -1,7 +1,9 @@
 package io.github.cnadjim.eventflow.core.spi;
 
+import io.github.cnadjim.eventflow.core.domain.error.BadRequestError;
 import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.error.InternalServerError;
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowException;
 import io.github.cnadjim.eventflow.core.stub.DefaultErrorConverter;
 import org.junit.jupiter.api.Test;
@@ -145,7 +147,7 @@ public class ErrorConverterTest {
     @Test
     void fromThrowable_should_handle_nested_exceptions() {
         // Arrange
-        IllegalArgumentException rootCause = new IllegalArgumentException("Root cause");
+        BadArgumentException rootCause = new BadArgumentException("Root cause");
         RuntimeException wrapper = new RuntimeException("Wrapper", rootCause);
 
         // Act
@@ -153,7 +155,7 @@ public class ErrorConverterTest {
 
         // Assert
         assertNotNull(result);
-        assertInstanceOf(InternalServerError.class, result);
+        assertInstanceOf(BadRequestError.class, result);
         assertTrue(result.message().contains("Root cause"));
     }
 

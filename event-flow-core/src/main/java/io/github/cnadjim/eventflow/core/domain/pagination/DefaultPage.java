@@ -1,5 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.pagination;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
+
 import java.util.Collection;
 
 import static java.util.Objects.isNull;
@@ -17,8 +19,8 @@ public record DefaultPage<CONTENT_TYPE>(PageDetails page,
                                         SortDetails sort,
                                         Collection<CONTENT_TYPE> content) implements Page<CONTENT_TYPE> {
     public DefaultPage {
-        if (isNull(page)) throw new IllegalArgumentException("page cannot be null");
-        if (isNull(sort)) throw new IllegalArgumentException("sort cannot be null");
-        if (isNull(content)) throw new IllegalArgumentException("content cannot be null");
+        if (isNull(page)) throw new BadArgumentException("page cannot be null");
+        if (isNull(sort)) throw new BadArgumentException("sort cannot be null");
+        if (isNull(content)) throw new BadArgumentException("content cannot be null");
     }
 }

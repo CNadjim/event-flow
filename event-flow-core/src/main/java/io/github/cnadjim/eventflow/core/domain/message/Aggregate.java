@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.message;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.AggregateIdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.VersionSupplier;
 import org.apache.commons.lang3.StringUtils;
@@ -23,15 +24,15 @@ public record Aggregate(Long version,
      * Compact constructor for the Aggregate record.
      * Validates that the version is not null and is non-negative, and that the aggregateId is not empty.
      *
-     * @throws IllegalArgumentException if version is null, version is negative, or aggregateId is empty
+     * @throws BadArgumentException if version is null, version is negative, or aggregateId is empty
      */
     public Aggregate {
         if (isNull(version)) {
-            throw new IllegalArgumentException("version cannot be null");
+            throw new BadArgumentException("version cannot be null");
         } else if (version < 0) {
-            throw new IllegalArgumentException("version must be greater than 0");
+            throw new BadArgumentException("version must be greater than 0");
         }
-        if (StringUtils.isBlank(aggregateId)) throw new IllegalArgumentException("aggregateId cannot be empty");
+        if (StringUtils.isBlank(aggregateId)) throw new BadArgumentException("aggregateId cannot be empty");
     }
 
     /**

@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.message;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.AggregateIdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.IdSupplier;
 import org.apache.commons.lang3.StringUtils;
@@ -23,12 +24,12 @@ public record Command(String id,
      * Compact constructor for the Command record.
      * Validates that the payload is not null and the aggregateId is not empty.
      *
-     * @throws IllegalArgumentException if payload is null or aggregateId is empty
+     * @throws BadArgumentException if payload is null or aggregateId is empty
      */
     public Command {
-        if (StringUtils.isBlank(id)) throw new IllegalArgumentException("id cannot be null");
-        if (isNull(payload)) throw new IllegalArgumentException("payload cannot be null");
-        if (StringUtils.isBlank(aggregateId)) throw new IllegalArgumentException("aggregateId cannot be empty");
+        if (StringUtils.isBlank(id)) throw new BadArgumentException("id cannot be null");
+        if (isNull(payload)) throw new BadArgumentException("payload cannot be null");
+        if (StringUtils.isBlank(aggregateId)) throw new BadArgumentException("aggregateId cannot be empty");
     }
 
     public Command(Object payload) {

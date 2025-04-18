@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.message;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.IdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.PayloadSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.TopicSupplier;
@@ -49,11 +50,11 @@ public interface Message extends IdSupplier, PayloadSupplier, TopicSupplier, Ser
      * @param targetType The class of the target type.
      * @param <MESSAGE>  The type parameter representing the target message type.
      * @return The converted message, cast to the target type.
-     * @throws IllegalArgumentException if the message cannot be converted to the target type.
+     * @throws BadArgumentException if the message cannot be converted to the target type.
      */
     static <MESSAGE extends Message> MESSAGE convert(Message message, Class<MESSAGE> targetType) {
         if (targetType.isInstance(message)) {
             return targetType.cast(message);
-        } else throw new IllegalArgumentException("Cannot convert message to a targetType of " + targetType.getName());
+        } else throw new BadArgumentException("Cannot convert message to a targetType of " + targetType.getName());
     }
 }

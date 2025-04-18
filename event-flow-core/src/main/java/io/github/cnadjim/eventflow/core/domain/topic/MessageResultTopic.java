@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.topic;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 
 import java.util.concurrent.TimeUnit;
@@ -18,7 +19,7 @@ public record MessageResultTopic(String name) implements Topic {
         if (topic instanceof MessageTopic) {
             return create((MessageTopic) topic);
         } else {
-            throw new IllegalArgumentException("");
+            throw new BadArgumentException("topic not managed");
         }
     }
 

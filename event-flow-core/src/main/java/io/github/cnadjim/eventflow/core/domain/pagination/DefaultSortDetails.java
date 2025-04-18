@@ -1,5 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.pagination;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
+
 import java.util.Collection;
 
 import static java.util.Objects.isNull;
@@ -13,6 +15,6 @@ import static java.util.Objects.isNull;
 public record DefaultSortDetails(Collection<Order> orders) implements SortDetails {
 
     public DefaultSortDetails {
-        if (isNull(orders)) throw new IllegalArgumentException("orders cannot be null");
+        if (isNull(orders)) throw new BadArgumentException("orders cannot be null");
     }
 }

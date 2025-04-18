@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.message;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.IdSupplier;
 import org.apache.commons.lang3.StringUtils;
 
@@ -20,11 +21,11 @@ public record Query(String id,
      * Compact constructor for the Query record.
      * Validates that the payload is not null.
      *
-     * @throws IllegalArgumentException if the payload is null or id is blank
+     * @throws BadArgumentException if the payload is null or id is blank
      */
     public Query {
-        if (StringUtils.isBlank(id)) throw new IllegalArgumentException("id cannot be null");
-        if (isNull(payload)) throw new IllegalArgumentException("payload cannot be null");
+        if (StringUtils.isBlank(id)) throw new BadArgumentException("id cannot be null");
+        if (isNull(payload)) throw new BadArgumentException("payload cannot be null");
     }
 
     public Query(Object payload) {

@@ -1,6 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.response;
 
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.pagination.DefaultPage;
 import io.github.cnadjim.eventflow.core.domain.pagination.Page;
 
@@ -25,7 +26,7 @@ public record PageResponseType<R>(Class<R> responseType) implements ResponseType
      *
      * @param response The response objects to convert
      * @return A Page containing elements of type R
-     * @throws IllegalArgumentException if the response cannot be converted to a Page of R
+     * @throws BadArgumentException if the response cannot be converted to a Page of R
      */
     @Override
     public Page<R> convert(Object response) {
@@ -42,6 +43,6 @@ public record PageResponseType<R>(Class<R> responseType) implements ResponseType
             return new DefaultPage<>(pageResponse.page(), pageResponse.sort(), filteredContent);
         }
 
-        throw new IllegalArgumentException("Cannot convert response to a paginated response of " + responseType.getName());
+        throw new BadArgumentException("Cannot convert response to a paginated response of " + responseType.getName());
     }
 }

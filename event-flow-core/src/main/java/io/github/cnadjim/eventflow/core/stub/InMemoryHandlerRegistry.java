@@ -1,6 +1,7 @@
 package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.handler.*;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
 
@@ -21,11 +22,11 @@ public class InMemoryHandlerRegistry implements HandlerRegistry {
 
     @Override
     public void registerHandler(Handler handler) {
-        if (isNull(handler)) throw new IllegalArgumentException("Handler cannot be null");
+        if (isNull(handler)) throw new BadArgumentException("Handler cannot be null");
 
         final Class<?> payloadClass = handler.payloadClass();
 
-        if (isNull(payloadClass)) throw new IllegalArgumentException("PayloadClass cannot be null");
+        if (isNull(payloadClass)) throw new BadArgumentException("PayloadClass cannot be null");
 
         switch (handler) {
             case CommandHandler commandHandler -> commandHandlers.put(payloadClass, commandHandler);

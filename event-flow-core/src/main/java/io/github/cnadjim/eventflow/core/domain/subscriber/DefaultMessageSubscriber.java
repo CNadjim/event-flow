@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.subscriber;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.flux.Subscription;
@@ -15,10 +16,10 @@ public record DefaultMessageSubscriber<MESSAGE extends Message>(Topic topic,
                                                                 Consumer<Subscription> subscriptionConsumer) implements MessageSubscriber<MESSAGE> {
 
     public DefaultMessageSubscriber {
-        if (isNull(topic)) throw new IllegalArgumentException("topic cannot be null");
-        if (isNull(messageType)) throw new IllegalArgumentException("messageType cannot be null");
-        if (isNull(messageConsumer)) throw new IllegalArgumentException("messageConsumer cannot be null");
-        if (isNull(subscriptionConsumer)) throw new IllegalArgumentException("subscriptionConsumer cannot be null");
+        if (isNull(topic)) throw new BadArgumentException("topic cannot be null");
+        if (isNull(messageType)) throw new BadArgumentException("messageType cannot be null");
+        if (isNull(messageConsumer)) throw new BadArgumentException("messageConsumer cannot be null");
+        if (isNull(subscriptionConsumer)) throw new BadArgumentException("subscriptionConsumer cannot be null");
     }
 
     public DefaultMessageSubscriber(Topic topic,

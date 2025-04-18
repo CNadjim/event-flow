@@ -6,10 +6,10 @@ import io.github.cnadjim.eventflow.core.domain.topic.Topic;
 import java.util.Collection;
 
 /**
- * {@code FindTopic} defines the use case for retrieving all available topics.
+ * {@code FindTopics} defines the use case for retrieving all available topics.
  */
 @UseCase
-public interface FindTopic {
+public interface FindTopics {
 
     /**
      * Retrieves all available topics.

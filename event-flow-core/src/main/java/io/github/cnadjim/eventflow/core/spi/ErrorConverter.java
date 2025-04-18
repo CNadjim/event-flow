@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.Optional;
 
 import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 /**
  * Service Provider Interface for error conversion.
@@ -67,7 +68,13 @@ public interface ErrorConverter {
             return null;
         }
 
+        final Throwable rootCause = ExceptionUtils.getRootCause(throwable);
+
         if (throwable instanceof EventFlowException eventFlowException) {
+            if (eventFlowException.hasError()) {
+                return eventFlowException.getError();
+            }
+        } else if (nonNull(rootCause) && rootCause instanceof EventFlowException eventFlowException) {
             if (eventFlowException.hasError()) {
                 return eventFlowException.getError();
             }
