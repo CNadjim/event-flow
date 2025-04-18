@@ -37,6 +37,12 @@
 
         <dependency>
             <groupId>io.github.cnadjim</groupId>
+            <artifactId>event-flow-spring-boot-rabbitmq-starter</artifactId>
+            <version>1.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>io.github.cnadjim</groupId>
             <artifactId>event-flow-spring-boot-starter</artifactId>
             <version>1.0</version>
         </dependency>

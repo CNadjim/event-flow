@@ -3,6 +3,7 @@ package io.github.cnadjim.eventflow.spring.rabbitmq.starter.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import io.github.cnadjim.eventflow.spring.rabbitmq.starter.rabbitmq.RabbitMqMessageConverter;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -17,9 +18,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMqConfig {
 
-    @Value("${spring.application.name}")
-    private String springApplicationName;
-
     @Value("${spring.rabbitmq.host:localhost}")
     private String host;
 
@@ -32,9 +30,6 @@ public class RabbitMqConfig {
     @Value("${spring.rabbitmq.password:guest}")
     private String password;
 
-    @Value("${spring.rabbitmq.virtual-host:/}")
-    private String virtualHost;
-
     @Bean
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
@@ -42,7 +37,6 @@ public class RabbitMqConfig {
         connectionFactory.setPort(port);
         connectionFactory.setUsername(username);
         connectionFactory.setPassword(password);
-        connectionFactory.setVirtualHost(virtualHost);
         return connectionFactory;
     }
 
@@ -55,7 +49,7 @@ public class RabbitMqConfig {
     public ObjectMapper rabbitMqObjectMapper(final ObjectMapper objectMapper) {
         final ObjectMapper rabbitMqObjectMapper = objectMapper.copy();
         rabbitMqObjectMapper.activateDefaultTyping(
-                LaissezFaireSubTypeValidator .instance,
+                LaissezFaireSubTypeValidator.instance,
                 ObjectMapper.DefaultTyping.OBJECT_AND_NON_CONCRETE,
                 JsonTypeInfo.As.PROPERTY
         );
@@ -63,14 +57,15 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public MessageConverter messageConverter(@Qualifier("rabbitMqObjectMapper") ObjectMapper rabbitMqObjectMapper) {
-        return new io.github.cnadjim.eventflow.spring.rabbitmq.starter.rabbitmq.RabbitMqMessageConverter(rabbitMqObjectMapper);
+    public RabbitMqMessageConverter rabbitMqMessageConverter(@Qualifier("rabbitMqObjectMapper") ObjectMapper rabbitMqObjectMapper) {
+        return new RabbitMqMessageConverter(rabbitMqObjectMapper);
     }
 
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory, MessageConverter messageConverter) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(messageConverter);
+    public RabbitTemplate rabbitTemplate(final ConnectionFactory connectionFactory,
+                                         final RabbitMqMessageConverter rabbitMqMessageConverter) {
+        final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(rabbitMqMessageConverter);
         return rabbitTemplate;
     }
 }

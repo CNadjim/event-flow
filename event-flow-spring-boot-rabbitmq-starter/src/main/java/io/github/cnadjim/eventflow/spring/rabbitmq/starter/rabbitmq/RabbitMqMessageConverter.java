@@ -1,43 +1,39 @@
 package io.github.cnadjim.eventflow.spring.rabbitmq.starter.rabbitmq;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.github.cnadjim.eventflow.core.domain.message.Message;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.springframework.amqp.core.Message;
 import org.springframework.amqp.core.MessageProperties;
-import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConversionException;
+import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.lang.NonNull;
 
 @Slf4j
-public class RabbitMqMessageConverter extends Jackson2JsonMessageConverter {
+@RequiredArgsConstructor
+public class RabbitMqMessageConverter implements MessageConverter {
 
     private final ObjectMapper objectMapper;
 
-    public RabbitMqMessageConverter(ObjectMapper objectMapper) {
-        super(objectMapper);
-        this.objectMapper = objectMapper;
-    }
-
+    @NonNull
     @Override
-    public Object fromMessage(org.springframework.amqp.core.Message message, Object conversionHint) {
+    public Message toMessage(@NonNull Object object,@NonNull MessageProperties messageProperties) throws MessageConversionException {
         try {
-            byte[] body = message.getBody();
-            return objectMapper.readValue(body, Message.class);
-        } catch (Exception e) {
-            log.error("Failed to convert message: {}", ExceptionUtils.getRootCauseMessage(e));
-            throw new MessageConversionException("Failed to convert message", ExceptionUtils.getRootCause(e));
-        }
-    }
-
-    @Override
-    protected org.springframework.amqp.core.Message createMessage(Object object, MessageProperties messageProperties) {
-        try {
-            byte[] bytes = objectMapper.writeValueAsBytes(object);
+            byte[] bytes = objectMapper.writerFor(Object.class).writeValueAsBytes(object);
             messageProperties.setContentType(MessageProperties.CONTENT_TYPE_JSON);
             messageProperties.setContentEncoding("UTF-8");
             return new org.springframework.amqp.core.Message(bytes, messageProperties);
         } catch (Exception e) {
-            log.error("Failed to create message: {}", ExceptionUtils.getRootCauseMessage(e));
+            throw new MessageConversionException("Failed to create message", ExceptionUtils.getRootCause(e));
+        }
+    }
+    @NonNull
+    @Override
+    public Object fromMessage(@NonNull Message message) throws MessageConversionException {
+        try {
+            return objectMapper.readValue(message.getBody(), io.github.cnadjim.eventflow.core.domain.message.Message.class);
+        }  catch (Exception e) {
             throw new MessageConversionException("Failed to create message", ExceptionUtils.getRootCause(e));
         }
     }
