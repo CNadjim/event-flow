@@ -14,7 +14,7 @@ public interface MessageBus {
      * Publishes a message to all subscribers interested in this message type.
      *
      * @param message The message to publish
-     * @param <MESSAGE> The type of the message, must extend Message
+     * @param <MESSAGE> The type of the message must extend Message
      */
     <MESSAGE extends Message> void publish(MESSAGE message);
 

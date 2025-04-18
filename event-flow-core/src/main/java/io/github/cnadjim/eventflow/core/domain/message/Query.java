@@ -1,6 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.message;
 
 import io.github.cnadjim.eventflow.core.domain.supplier.IdSupplier;
+import org.apache.commons.lang3.StringUtils;
 
 import static java.util.Objects.isNull;
 
@@ -9,7 +10,7 @@ import static java.util.Objects.isNull;
  * A query is a request for information that does not change the state of the system.
  * Queries are typically handled by a single handler and return a response.
  *
- * @param id The unique identifier of the query
+ * @param id      The unique identifier of the query
  * @param payload The payload of the query, containing the parameters for the query
  */
 public record Query(String id,
@@ -19,23 +20,14 @@ public record Query(String id,
      * Compact constructor for the Query record.
      * Validates that the payload is not null.
      *
-     * @throws IllegalArgumentException if payload is null
+     * @throws IllegalArgumentException if the payload is null or id is blank
      */
     public Query {
+        if (StringUtils.isBlank(id)) throw new IllegalArgumentException("id cannot be null");
         if (isNull(payload)) throw new IllegalArgumentException("payload cannot be null");
     }
 
-    /**
-     * Creates a new Query with the given payload.
-     * The query ID is generated automatically.
-     *
-     * @param payload The payload of the query
-     * @return A new Query instance
-     */
-    public static Query create(Object payload) {
-        return new Query(
-                IdSupplier.create(),
-                payload
-        );
+    public Query(Object payload) {
+        this(IdSupplier.create(), payload);
     }
 }

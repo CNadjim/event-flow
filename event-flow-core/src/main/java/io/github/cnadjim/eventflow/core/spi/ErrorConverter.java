@@ -45,7 +45,7 @@ public interface ErrorConverter {
     }
 
     /**
-     * Provides a default conversion for throwables that cannot be handled by the custom conversion logic.
+     * Provides a default conversion for throwable that cannot be handled by the custom conversion logic.
      *
      * @param throwable The throwable to convert
      * @return The converted Error

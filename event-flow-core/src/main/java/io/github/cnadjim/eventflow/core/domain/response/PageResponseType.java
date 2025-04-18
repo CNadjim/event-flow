@@ -23,7 +23,7 @@ public record PageResponseType<R>(Class<R> responseType) implements ResponseType
      * If the response is null, returns an empty page.
      * If the response is already a Page, filters its content to include only elements of type R.
      *
-     * @param response The response object to convert
+     * @param response The response objects to convert
      * @return A Page containing elements of type R
      * @throws IllegalArgumentException if the response cannot be converted to a Page of R
      */

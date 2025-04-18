@@ -28,11 +28,11 @@ public interface CommandHandler extends Handler {
                 final List<Event> events = new ArrayList<>();
 
                 if (result instanceof List<?> results) {
-                    for (Object event : results) {
-                        events.add(Event.create(event));
+                    for (Object eventPayload : results) {
+                        events.add(new Event(eventPayload));
                     }
                 } else if (nonNull(result)) {
-                    events.add(Event.create(result));
+                    events.add(new Event(result));
                 } else {
                     throw new HandlerExecutionException(String.format("Command handler %s returned null or empty result", method.getName()));
                 }

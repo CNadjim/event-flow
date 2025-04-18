@@ -11,8 +11,8 @@ import static java.util.Objects.isNull;
  * A command is a request to perform an action or change the state of an aggregate.
  * Commands are typically handled by a single handler and can produce events.
  *
- * @param id The unique identifier of the command
- * @param payload The payload of the command, containing the data needed to process it
+ * @param id          The unique identifier of the command
+ * @param payload     The payload of the command, containing the data needed to process it
  * @param aggregateId The identifier of the aggregate that this command targets
  */
 public record Command(String id,
@@ -26,22 +26,12 @@ public record Command(String id,
      * @throws IllegalArgumentException if payload is null or aggregateId is empty
      */
     public Command {
+        if (StringUtils.isBlank(id)) throw new IllegalArgumentException("id cannot be null");
         if (isNull(payload)) throw new IllegalArgumentException("payload cannot be null");
         if (StringUtils.isBlank(aggregateId)) throw new IllegalArgumentException("aggregateId cannot be empty");
     }
 
-    /**
-     * Creates a new Command with the given payload.
-     * The command ID is generated automatically, and the aggregate ID is extracted from the payload.
-     *
-     * @param payload The payload of the command
-     * @return A new Command instance
-     */
-    public static Command create(Object payload) {
-        return new Command(
-                IdSupplier.create(),
-                payload,
-                AggregateIdSupplier.getAggregateId(payload)
-        );
+    public Command(Object payload) {
+        this(IdSupplier.create(), payload, AggregateIdSupplier.getAggregateId(payload));
     }
 }

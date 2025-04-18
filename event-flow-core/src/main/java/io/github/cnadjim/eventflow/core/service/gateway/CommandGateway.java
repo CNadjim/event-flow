@@ -38,14 +38,14 @@ public class CommandGateway implements SendCommand {
      * to receive the command result, publishes the command message, and returns a {@link CompletableFuture}
      * that will be completed with the command result.  The future is configured with a timeout of 1 minute.
      *
-     * @param command The command object to send.
+     * @param commandPayload The command object to send.
      * @return A {@link CompletableFuture} that will be completed with the command result.
      */
     @Override
-    public CompletableFuture<String> send(Object command) {
+    public CompletableFuture<String> send(Object commandPayload) {
         final CompletableFuture<String> commandResultFuture = new CompletableFuture<>();
 
-        final Command commandMessage = Command.create(command);
+        final Command commandMessage = new Command(commandPayload);
         final MessageResultSubscriber<Command> commandResultSubscriber = new CommandResultSubscriber(commandMessage, commandResultFuture);
 
         messageBus.subscribe(commandResultSubscriber);

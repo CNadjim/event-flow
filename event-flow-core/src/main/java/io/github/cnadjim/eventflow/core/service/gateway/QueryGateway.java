@@ -35,16 +35,16 @@ public class QueryGateway implements SendQuery {
      * publishes the query message, and returns a {@link CompletableFuture} that will be completed with the query result.
      * The type of the expected result is specified using a {@link ResponseType}. The future is configured with a timeout of 1 minute.
      *
-     * @param query        The query object to send.
+     * @param queryPayload        The query object to send.
      * @param responseType The {@link ResponseType} representing the expected type of the query result.
      * @param <QUERY_RESPONSE> The type of the query response.
      * @param <QUERY_REQUEST> The type of the query request.
      * @return A {@link CompletableFuture} that will be completed with the query result.
      */
     @Override
-    public <QUERY_RESPONSE, QUERY_REQUEST> CompletableFuture<QUERY_RESPONSE> send(QUERY_REQUEST query, ResponseType<QUERY_RESPONSE> responseType) {
+    public <QUERY_RESPONSE, QUERY_REQUEST> CompletableFuture<QUERY_RESPONSE> send(QUERY_REQUEST queryPayload, ResponseType<QUERY_RESPONSE> responseType) {
         final CompletableFuture<QUERY_RESPONSE> resultFuture = new CompletableFuture<>();
-        final Query queryMessage = Query.create(query);
+        final Query queryMessage = new Query(queryPayload);
         final QueryResultSubscriber<QUERY_RESPONSE> queryResultObserver = new QueryResultSubscriber<>(queryMessage, responseType, resultFuture);
 
         messageBus.subscribe(queryResultObserver);

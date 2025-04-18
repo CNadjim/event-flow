@@ -1,10 +1,12 @@
 package io.github.cnadjim.eventflow.core.domain.response;
 
+import static java.util.Objects.isNull;
+
 public record InstanceResponseType<R>(Class<R> type) implements ResponseType<R> {
 
     @Override
     public R convert(Object response) {
-        if (response == null) {
+        if (isNull(response)) {
             return null;
         }
 

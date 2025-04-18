@@ -34,13 +34,13 @@ public class EventGateway implements SendEvent {
      * publishes the event message to the {@link MessageBus}, and returns a {@link CompletableFuture} that completes when
      * the event has been processed.  The future is configured with a timeout of 1 minute.
      *
-     * @param event The event object to send.
+     * @param eventPayload The event object to send.
      * @return A {@link CompletableFuture} that completes when the event has been processed.
      */
     @Override
-    public CompletableFuture<Void> send(Object event) {
+    public CompletableFuture<Void> send(Object eventPayload) {
         final CompletableFuture<Void> eventResult = new CompletableFuture<>();
-        final Event eventMessage = Event.create(event);
+        final Event eventMessage = new Event(eventPayload);
         final EventResultSubscriber eventResultObserver = new EventResultSubscriber(eventMessage, eventResult);
 
         messageBus.subscribe(eventResultObserver);

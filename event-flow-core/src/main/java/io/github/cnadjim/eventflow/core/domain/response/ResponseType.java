@@ -18,7 +18,7 @@ public interface ResponseType<R> {
     /**
      * Converts a response object to the target type.
      *
-     * @param response The response object to convert
+     * @param response The response objects to convert
      * @return The converted response of type R
      */
     R convert(Object response);

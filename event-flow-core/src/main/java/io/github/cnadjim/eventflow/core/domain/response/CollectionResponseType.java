@@ -1,15 +1,17 @@
 package io.github.cnadjim.eventflow.core.domain.response;
 
 import java.util.Collection;
-import java.util.List;
+import java.util.Collections;
 import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 public record CollectionResponseType<R>(Class<R> responseType) implements ResponseType<Collection<R>> {
 
     @Override
     public Collection<R> convert(Object response) {
-        if (response == null) {
-            return List.of();
+        if (isNull(response)) {
+            return Collections.emptyList();
         }
 
         if (response instanceof Collection) {
