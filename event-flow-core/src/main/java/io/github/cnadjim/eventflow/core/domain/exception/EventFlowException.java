@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.exception;
 
-import io.github.cnadjim.eventflow.core.domain.Error;
+import io.github.cnadjim.eventflow.core.domain.error.Error;
 import lombok.Getter;
 
 import java.time.Instant;
@@ -14,7 +14,7 @@ public class EventFlowException extends RuntimeException implements Error {
     private final Error error;
 
     public EventFlowException(Error error) {
-        if (isNull(error)) throw new IllegalArgumentException("Error cannot be null");
+        if (isNull(error)) throw new BadArgumentException("Error cannot be null");
         this.error = error;
     }
 

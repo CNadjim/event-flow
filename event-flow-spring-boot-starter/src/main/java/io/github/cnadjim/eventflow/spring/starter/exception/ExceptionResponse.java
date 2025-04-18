@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.spring.starter.exception;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import io.github.cnadjim.eventflow.core.domain.Error;
+import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.error.InternalServerError;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -23,10 +23,10 @@ public record ExceptionResponse(Instant timestamp,
     private static final HttpStatus DEFAULT_STATUS = HttpStatus.resolve(InternalServerError.INTERNAL_SERVER_ERROR_STATUS);
 
     public ExceptionResponse {
-        if (Objects.isNull(timestamp)) throw new IllegalArgumentException();
-        if (Objects.isNull(status)) throw new IllegalArgumentException();
-        if (StringUtils.isBlank(error)) throw new IllegalArgumentException();
-        if (StringUtils.isBlank(message)) throw new IllegalArgumentException();
+        if (Objects.isNull(timestamp)) throw new IllegalArgumentException("timestamp cannot be null");
+        if (Objects.isNull(status)) throw new IllegalArgumentException("status cannot be null");
+        if (StringUtils.isBlank(error)) throw new IllegalArgumentException("error cannot be blank");
+        if (StringUtils.isBlank(message)) throw new IllegalArgumentException("message cannot be blank");
     }
 
 

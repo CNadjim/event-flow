@@ -1,8 +1,7 @@
 package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
-import io.github.cnadjim.eventflow.core.domain.Event;
-import org.apache.commons.collections.CollectionUtils;
+import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.spi.EventStore;
 
 import java.util.Comparator;
@@ -32,7 +31,6 @@ public class InMemoryEventStore implements EventStore {
             });
         }
     }
-
 
     @Override
     public void deleteAllByAggregateId(String aggregateId) {

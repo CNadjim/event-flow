@@ -2,11 +2,12 @@ package io.github.cnadjim.eventflow.spring.kafka.starter.config;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import io.github.cnadjim.eventflow.core.domain.Message;
+import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.spring.kafka.starter.kafka.KafkaMessageDeserializer;
 import io.github.cnadjim.eventflow.spring.kafka.starter.kafka.KafkaMessageSerializer;
+import org.apache.kafka.clients.admin.AdminClient;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.CooperativeStickyAssignor;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
@@ -18,7 +19,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.kafka.core.KafkaAdmin;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 @Configuration
@@ -72,6 +76,13 @@ public class KafkaConfig {
         return producerConfig;
     }
 
+    @Bean("kafkaAdminConfig")
+    public Properties kafkaAdminConfig() {
+        final Properties adminConfig = new Properties();
+        adminConfig.putIfAbsent(AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG, boostrapServers);
+        return adminConfig;
+    }
+
 
     @Bean("kafkaObjectMapper")
     public ObjectMapper kafkaObjectMapper(final ObjectMapper objectMapper) {
@@ -96,4 +107,18 @@ public class KafkaConfig {
         return new KafkaProducer<>(messageProducerConfig, new StringSerializer(), new KafkaMessageSerializer(kafkaObjectMapper));
     }
 
+
+    @Bean
+    public AdminClient adminClient(@Qualifier(value = "kafkaAdminConfig") final Properties kafkaAdminConfig) {
+        return AdminClient.create(kafkaAdminConfig);
+    }
+
+    @Bean
+    public KafkaAdmin kafkaAdmin(@Qualifier(value = "kafkaAdminConfig") final Properties kafkaAdminConfig) {
+        final Map<String, Object> configs = new HashMap<>();
+        for (String key : kafkaAdminConfig.stringPropertyNames()) {
+            configs.put(key, kafkaAdminConfig.getProperty(key));
+        }
+        return new KafkaAdmin(configs);
+    }
 }

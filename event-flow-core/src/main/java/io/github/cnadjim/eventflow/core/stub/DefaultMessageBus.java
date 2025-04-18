@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
-import io.github.cnadjim.eventflow.core.domain.Message;
+import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.flux.Subscription;
 import io.github.cnadjim.eventflow.core.spi.MessageBus;
@@ -16,6 +16,7 @@ import java.util.concurrent.CopyOnWriteArrayList;
 @Stub
 @Slf4j
 public class DefaultMessageBus implements MessageBus {
+
     private final ConcurrentMap<String, List<MessageSubscriber<?>>> subscribers = new ConcurrentHashMap<>();
 
     @Override

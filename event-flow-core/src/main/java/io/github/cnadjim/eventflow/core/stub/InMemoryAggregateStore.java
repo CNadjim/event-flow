@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
-import io.github.cnadjim.eventflow.core.domain.Aggregate;
+import io.github.cnadjim.eventflow.core.domain.message.Aggregate;
 import io.github.cnadjim.eventflow.core.spi.AggregateStore;
 
 import java.util.*;
@@ -11,18 +11,19 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 @Stub
 public class InMemoryAggregateStore implements AggregateStore {
-    private final ConcurrentMap<String, CopyOnWriteArrayList<Aggregate>> aggregatesMap = new ConcurrentHashMap<>();
+
+    private final ConcurrentMap<String, CopyOnWriteArrayList<Aggregate>> aggregatesByTopicName = new ConcurrentHashMap<>();
 
     @Override
     public Optional<Aggregate> findTopByAggregateIdOrderByVersionDesc(String aggregateId) {
-        return aggregatesMap.getOrDefault(aggregateId, new CopyOnWriteArrayList<>())
+        return aggregatesByTopicName.getOrDefault(aggregateId, new CopyOnWriteArrayList<>())
                 .stream()
                 .max(Comparator.naturalOrder());
     }
 
     @Override
     public void save(Aggregate aggregate) {
-        aggregatesMap.compute(aggregate.aggregateId(), (key, existing) -> {
+        aggregatesByTopicName.compute(aggregate.aggregateId(), (topicName, existing) -> {
             if (Objects.isNull(existing)) {
                 existing = new CopyOnWriteArrayList<>();
             }
@@ -33,6 +34,6 @@ public class InMemoryAggregateStore implements AggregateStore {
 
     @Override
     public void deleteAllByAggregateId(String aggregateId) {
-        aggregatesMap.remove(aggregateId);
+        aggregatesByTopicName.remove(aggregateId);
     }
 }

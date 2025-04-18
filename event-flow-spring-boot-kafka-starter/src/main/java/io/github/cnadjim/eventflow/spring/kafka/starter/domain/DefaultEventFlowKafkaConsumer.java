@@ -1,11 +1,10 @@
 package io.github.cnadjim.eventflow.spring.kafka.starter.domain;
 
-import io.github.cnadjim.eventflow.core.domain.Message;
-import io.github.cnadjim.eventflow.core.domain.Topic;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
+import io.github.cnadjim.eventflow.core.domain.message.Message;
+import io.github.cnadjim.eventflow.core.domain.topic.Topic;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
@@ -41,41 +40,36 @@ public class DefaultEventFlowKafkaConsumer implements EventFlowKafkaConsumer {
     @Override
     public void run() {
         log.debug("{} consumer started", topic.name());
+        
         try {
             consumer.subscribe(Collections.singleton(topic.name()));
 
             while (running.get()) {
-                if (CollectionUtils.isEmpty(subscribers)) {
-                    running.set(false);
-                } else {
-                    final ConsumerRecords<String, Message> records = consumer.poll(Duration.ofMillis(10000));
+                final ConsumerRecords<String, Message> records = consumer.poll(Duration.ofMillis(10000));
 
-                    for (ConsumerRecord<String, Message> record : records) {
-                        final Message message = record.value();
-
-                        log.debug("{} new message : {}", topic.name(), message.id());
-
-                        sendMessageToSubscriber(message);
-                    }
-
-                    if (topic.type().equals(Topic.TopicType.MESSAGE)) {
-                        consumer.commitSync();
-                    }
+                for (ConsumerRecord<String, Message> record : records) {
+                    final Message message = record.value();
+                    sendMessageToSubscriber(message);
                 }
             }
         } catch (Exception exception) {
             log.error(ExceptionUtils.getRootCauseMessage(exception), exception);
         } finally {
-            shutdown();
+            consumer.unsubscribe();
+            consumer.close();
         }
     }
 
     @Override
     public void shutdown() {
-        running.set(false);
-        consumer.unsubscribe();
-        consumer.close();
-        onShutdown.accept(null);
-        log.debug("{} consumer shutting down", topic.name());
+        try{
+            running.set(false);
+            executorService.close();
+        }catch (Exception exception) {
+            log.error("{} consumer shutting down exception", topic.name(), exception);
+        } finally {
+            onShutdown.accept(null);
+            log.debug("{} consumer shutting down", topic.name());
+        }
     }
 }

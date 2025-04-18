@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.spring.mongo.starter.entity;
 
 
-import io.github.cnadjim.eventflow.core.domain.Event;
+import io.github.cnadjim.eventflow.core.domain.message.Event;
 import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.CompoundIndex;

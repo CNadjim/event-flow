@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.spring.kafka.starter.spi;
 
-import io.github.cnadjim.eventflow.core.domain.Message;
-import io.github.cnadjim.eventflow.core.domain.Topic;
+import io.github.cnadjim.eventflow.core.domain.message.Message;
+import io.github.cnadjim.eventflow.core.domain.topic.Topic;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.spi.MessageBus;
 import io.github.cnadjim.eventflow.spring.kafka.starter.domain.EventFlowKafkaConsumer;
@@ -34,5 +34,4 @@ public class KafkaMessageBus implements MessageBus {
         final EventFlowKafkaConsumer eventFlowKafkaConsumer = kafkaService.getConsumerByTopic(topic);
         eventFlowKafkaConsumer.addSubscriber(messageSubscriber);
     }
-
 }

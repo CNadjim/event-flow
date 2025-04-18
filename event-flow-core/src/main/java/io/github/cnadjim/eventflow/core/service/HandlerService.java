@@ -4,11 +4,14 @@ import io.github.cnadjim.eventflow.annotation.*;
 import io.github.cnadjim.eventflow.core.api.RegisterHandler;
 import io.github.cnadjim.eventflow.core.api.ScanObject;
 import io.github.cnadjim.eventflow.core.api.ScanPackage;
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.handler.*;
+import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import io.github.cnadjim.eventflow.core.service.dispatcher.CommandDispatcher;
 import io.github.cnadjim.eventflow.core.service.dispatcher.EventDispatcher;
 import io.github.cnadjim.eventflow.core.service.dispatcher.QueryDispatcher;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,8 +22,13 @@ import java.net.URL;
 import java.util.*;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
+/**
+ * {@code HandlerService} is a domain service responsible for managing and registering different types of handlers
+ * (e.g., {@link EventHandler}, {@link QueryHandler}, {@link CommandHandler}, {@link EventSourcingHandler}).
+ * It provides functionalities to register handlers explicitly, scan for handlers within a package or object,
+ * and subscribe handlers to their respective dispatchers.
+ */
 @DomainService
 public class HandlerService implements RegisterHandler, ScanPackage, ScanObject {
     private final HandlerRegistry handlerRegistry;
@@ -29,7 +37,19 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
     private final QueryDispatcher queryDispatcher;
     private final CommandDispatcher commandDispatcher;
 
-    public HandlerService(HandlerRegistry handlerRegistry,
+    private final TopicService topicService;
+
+    /**
+     * Constructs a {@code HandlerService} with the necessary dependencies.
+     *
+     * @param topicService      The {@link TopicService} for managing topics.
+     * @param handlerRegistry   The {@link HandlerRegistry} for storing and retrieving handlers.
+     * @param eventDispatcher   The {@link EventDispatcher} for dispatching events.
+     * @param queryDispatcher   The {@link QueryDispatcher} for dispatching queries.
+     * @param commandDispatcher The {@link CommandDispatcher} for dispatching commands.
+     */
+    public HandlerService(TopicService topicService,
+                          HandlerRegistry handlerRegistry,
                           EventDispatcher eventDispatcher,
                           QueryDispatcher queryDispatcher,
                           CommandDispatcher commandDispatcher) {
@@ -37,37 +57,57 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
         this.eventDispatcher = eventDispatcher;
         this.queryDispatcher = queryDispatcher;
         this.commandDispatcher = commandDispatcher;
+        this.topicService = topicService;
     }
 
+    /**
+     * Registers a given handler with the appropriate dispatcher and stores it in the handler registry.
+     * It also creates and saves a topic based on the handler's payload class.
+     *
+     * @param handler The {@link Handler} to register.  Must not be null.
+     * @throws BadArgumentException if the handler or its payload class is null.
+     */
     @Override
     public <HANDLER extends Handler> void register(HANDLER handler) {
 
-        if (isNull(handler)) throw new IllegalArgumentException("handler cannot be null");
+        if (isNull(handler)) throw new BadArgumentException("handler cannot be null");
 
         final Class<?> payloadClass = handler.payloadClass();
 
-        if (isNull(payloadClass)) throw new IllegalArgumentException("payloadClass cannot be null");
+        if (isNull(payloadClass)) throw new BadArgumentException("payloadClass cannot be null");
+
+        final MessageTopic messageTopic = new MessageTopic(payloadClass.getSimpleName());
+
+        topicService.save(messageTopic);
 
         switch (handler) {
             case EventHandler eventHandler -> {
                 handlerRegistry.registerHandler(eventHandler);
-                eventDispatcher.subscribe(payloadClass);
+                eventDispatcher.subscribe(messageTopic);
             }
             case QueryHandler queryHandler -> {
                 handlerRegistry.registerHandler(queryHandler);
-                queryDispatcher.subscribe(payloadClass);
+                queryDispatcher.subscribe(messageTopic);
             }
             case CommandHandler commandHandler -> {
                 handlerRegistry.registerHandler(commandHandler);
-                commandDispatcher.subscribe(payloadClass);
+                commandDispatcher.subscribe(messageTopic);
             }
             case EventSourcingHandler eventSourcingHandler -> {
                 handlerRegistry.registerHandler(eventSourcingHandler);
             }
-            default -> throw new IllegalArgumentException("Unexpected value: " + handler);
+            default -> throw new BadArgumentException("Unexpected value: " + handler);
         }
     }
 
+
+    /**
+     * Scans an object instance for methods annotated with {@link HandleEvent}, {@link HandleQuery}, {@link HandleCommand},
+     * or {@link ApplyEvent} and creates corresponding handlers.
+     *
+     * @param instance The object instance to scan.
+     * @return A collection of {@link Handler} instances found in the object.  Returns an empty collection if the instance is null.
+     */
     @Override
     public Collection<Handler> scan(Object instance) {
         final Collection<Handler> handlers = new ArrayList<>();
@@ -104,9 +144,20 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
     }
 
 
+    /**
+     * Scans a package for classes and creates handler instances from those classes.
+     * It searches for classes that are not interfaces or abstract and attempts to create instances of them.
+     *
+     * @param packageName The name of the package to scan.
+     * @return A collection of {@link Handler} instances found in the package.
+     */
     @Override
     public Collection<Handler> scan(String packageName) {
         final List<Handler> handlers = new ArrayList<>();
+
+        if (StringUtils.isBlank(packageName)) {
+            return handlers;
+        }
 
         try {
             final ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
@@ -130,6 +181,12 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
         return handlers;
     }
 
+    /**
+     * Attempts to create an instance of a given class using its default constructor.
+     *
+     * @param clazz The class to instantiate.
+     * @return An {@link Optional} containing the created instance, or an empty {@link Optional} if instantiation fails.
+     */
     private static Optional<Object> tryCreateInstance(Class<?> clazz) {
         try {
             final Constructor<?> constructor = clazz.getDeclaredConstructor();
@@ -141,6 +198,13 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
     }
 
 
+    /**
+     * Recursively finds handler instances within a directory and its subdirectories.
+     *
+     * @param directory   The directory to scan.
+     * @param packageName The package name corresponding to the directory.
+     * @return A list of {@link Handler} instances found in the directory and its subdirectories.
+     */
     private List<Handler> findHandlers(File directory, String packageName) {
         List<Handler> handlers = new ArrayList<>();
 
@@ -150,26 +214,41 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
 
         final File[] files = directory.listFiles();
 
-        if (nonNull(files)) {
-            for (File file : files) {
-                if (file.isDirectory()) {
-                    handlers.addAll(findHandlers(file, packageName + "." + file.getName()));
-                } else if (file.getName().endsWith(".class")) {
-                    final String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 6);
-                    try {
-                        final Class<?> clazz = Class.forName(className);
-                        if (isNotInterfaceOrAbstract(clazz)) {
-                            tryCreateInstance(clazz).ifPresent(instance -> handlers.addAll(scan(instance)));
-                        }
-                    } catch (ClassNotFoundException ignored) {
-                    }
+        if (isNull(files)) { // Guard against null files array
+            return handlers;
+        }
+
+        for (File file : files) {
+            if (file.isDirectory()) {
+                handlers.addAll(findHandlers(file, packageName + "." + file.getName()));
+                continue; // Move to the next file
+            }
+
+            if (!file.getName().endsWith(".class")) {
+                continue; // Move to the next file
+            }
+
+            final String className = packageName + '.' + file.getName().substring(0, file.getName().length() - 6);
+
+            try {
+                final Class<?> clazz = Class.forName(className);
+                if (isNotInterfaceOrAbstract(clazz)) {
+                    tryCreateInstance(clazz).ifPresent(instance -> handlers.addAll(scan(instance)));
                 }
+            } catch (ClassNotFoundException ignored) {
+                // Log this, even if ignored
             }
         }
 
         return handlers;
     }
 
+    /**
+     * Checks if a given class is not an interface or an abstract class.
+     *
+     * @param clazz The class to check.
+     * @return {@code true} if the class is not an interface or abstract, {@code false} otherwise.
+     */
     private boolean isNotInterfaceOrAbstract(Class<?> clazz) {
         return !clazz.isInterface() && !Modifier.isAbstract(clazz.getModifiers());
     }

@@ -14,7 +14,7 @@ import static org.mockito.Mockito.doReturn;
 
 
 @ExtendWith(MockitoExtension.class)
-class HandlerRegistryTest {
+public class HandlerRegistryTest {
 
     @Spy
     private HandlerRegistry handlerRegistry;

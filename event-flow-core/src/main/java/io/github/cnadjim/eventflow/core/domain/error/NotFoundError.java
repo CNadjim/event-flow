@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.error;
 
-import io.github.cnadjim.eventflow.core.domain.Error;
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
@@ -13,8 +13,12 @@ public record NotFoundError(Instant timestamp, String message) implements Error 
     public static String NOT_FOUND_REASON_PHRASE = "Not Found";
 
     public NotFoundError {
-        if (isNull(timestamp)) throw new IllegalArgumentException("Timestamp cannot be null");
-        if (StringUtils.isBlank(message)) throw new IllegalArgumentException("Message cannot be blank");
+        if (isNull(timestamp)) throw new BadArgumentException("Timestamp cannot be null");
+        if (StringUtils.isBlank(message)) throw new BadArgumentException("Message cannot be blank");
+    }
+
+    public NotFoundError(String message) {
+        this(Instant.now(), message);
     }
 
     @Override
@@ -33,6 +37,6 @@ public record NotFoundError(Instant timestamp, String message) implements Error 
     }
 
     public static NotFoundError create(String message) {
-        return new NotFoundError(Instant.now(), message);
+        return new NotFoundError(message);
     }
 }
