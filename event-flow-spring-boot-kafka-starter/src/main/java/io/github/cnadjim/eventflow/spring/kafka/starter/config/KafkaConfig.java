@@ -37,34 +37,20 @@ public class KafkaConfig {
     @Value("${server.port}")
     private String port;
 
-    @Bean("messageConsumerConfig")
-    public Properties messageConsumerConfig() {
+    @Bean("messageConsumerProperties")
+    public Properties messageConsumerProperties() {
         final Properties consumerConfig = new Properties();
-        consumerConfig.putIfAbsent(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        consumerConfig.putIfAbsent(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaMessageDeserializer.class.getName());
-        consumerConfig.putIfAbsent(ConsumerConfig.ISOLATION_LEVEL_CONFIG, "read_committed");
-        consumerConfig.putIfAbsent(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
-        consumerConfig.putIfAbsent(ConsumerConfig.PARTITION_ASSIGNMENT_STRATEGY_CONFIG, CooperativeStickyAssignor.class.getName());
+        consumerConfig.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
+        consumerConfig.put(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaMessageDeserializer.class.getName());
+        consumerConfig.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "latest");
+        consumerConfig.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
         consumerConfig.putIfAbsent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, boostrapServers);
         consumerConfig.putIfAbsent(ConsumerConfig.GROUP_ID_CONFIG, springApplicationName);
         return consumerConfig;
     }
 
-
-    @Bean("messageResultConsumerConfig")
-    public Properties messageResultConsumerConfig() {
-        final Properties consumerConfig = new Properties();
-        consumerConfig.putIfAbsent(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class.getName());
-        consumerConfig.putIfAbsent(ConsumerConfig.VALUE_DESERIALIZER_CLASS_CONFIG, KafkaMessageDeserializer.class.getName());
-        consumerConfig.putIfAbsent(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, "false");
-        consumerConfig.putIfAbsent(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        consumerConfig.putIfAbsent(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, boostrapServers);
-        consumerConfig.putIfAbsent(ConsumerConfig.GROUP_ID_CONFIG, springApplicationName);
-        return consumerConfig;
-    }
-
-    @Bean("messageProducerConfig")
-    public Properties messageProducerConfig() {
+    @Bean("messageProducerProperties")
+    public Properties messageProducerProperties() {
         final Properties producerConfig = new Properties();
         producerConfig.putIfAbsent(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
         producerConfig.putIfAbsent(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, KafkaMessageSerializer.class);
@@ -96,17 +82,10 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaConsumer<String, Message> messageConsumer(@Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper,
-                                                          @Qualifier(value = "messageConsumerConfig") final Properties messageConsumerConfig) {
-        return new KafkaConsumer<>(messageConsumerConfig, new StringDeserializer(), new KafkaMessageDeserializer(kafkaObjectMapper));
-    }
-
-    @Bean
-    public KafkaProducer<String, Message> messageProducer(@Qualifier(value = "messageProducerConfig") final Properties messageProducerConfig,
+    public KafkaProducer<String, Message> messageProducer(@Qualifier(value = "messageProducerProperties") final Properties messageProducerProperties,
                                                           @Qualifier(value = "kafkaObjectMapper") final ObjectMapper kafkaObjectMapper) {
-        return new KafkaProducer<>(messageProducerConfig, new StringSerializer(), new KafkaMessageSerializer(kafkaObjectMapper));
+        return new KafkaProducer<>(messageProducerProperties, new StringSerializer(), new KafkaMessageSerializer(kafkaObjectMapper));
     }
-
 
     @Bean
     public AdminClient adminClient(@Qualifier(value = "kafkaAdminConfig") final Properties kafkaAdminConfig) {

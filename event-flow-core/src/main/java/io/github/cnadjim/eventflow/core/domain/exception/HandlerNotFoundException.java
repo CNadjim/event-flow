@@ -1,11 +1,11 @@
 package io.github.cnadjim.eventflow.core.domain.exception;
 
-import io.github.cnadjim.eventflow.core.domain.error.NotFoundError;
+import io.github.cnadjim.eventflow.core.domain.error.ResourceNotFoundError;
 
-public class HandlerNotFoundException extends NotFoundException {
+public class HandlerNotFoundException extends ResourceNotFoundException {
 
     public HandlerNotFoundException(Class<?> messagePayloadClass) {
-        super(NotFoundError.create(String.format("No Handler found for : %s", messagePayloadClass.getSimpleName())));
+        super(ResourceNotFoundError.create(String.format("No Handler found for : %s", messagePayloadClass.getSimpleName())));
     }
 
 }

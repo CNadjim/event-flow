@@ -1,6 +1,7 @@
 package io.github.cnadjim.eventflow.core.domain.supplier;
 
 
+import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import io.github.cnadjim.eventflow.core.domain.topic.Topic;
 
 /**
@@ -17,4 +18,8 @@ public interface TopicSupplier {
      */
     Topic topic();
 
+
+    static MessageTopic create(Object payload) {
+        return new MessageTopic(payload.getClass().getSimpleName());
+    }
 }

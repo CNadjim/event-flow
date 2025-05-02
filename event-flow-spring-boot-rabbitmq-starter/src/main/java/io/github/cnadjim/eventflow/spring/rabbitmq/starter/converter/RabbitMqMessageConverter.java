@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.spring.rabbitmq.starter.rabbitmq;
+package io.github.cnadjim.eventflow.spring.rabbitmq.starter.converter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;

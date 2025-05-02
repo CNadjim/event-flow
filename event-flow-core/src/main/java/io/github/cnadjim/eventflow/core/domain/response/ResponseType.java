@@ -41,7 +41,7 @@ public interface ResponseType<R> {
      * @param <R> The type of elements in the collection
      * @return A ResponseType that converts to a collection of instances of the specified class
      */
-    static <R> ResponseType<Collection<R>> listOf(Class<R> responseType) {
+    static <R> ResponseType<Collection<R>> collectionOf(Class<R> responseType) {
         return new CollectionResponseType<>(responseType);
     }
 

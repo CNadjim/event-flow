@@ -5,7 +5,10 @@ import io.github.cnadjim.eventflow.annotation.Aggregate;
 import io.github.cnadjim.eventflow.annotation.AggregateId;
 import io.github.cnadjim.eventflow.annotation.ApplyEvent;
 import io.github.cnadjim.eventflow.annotation.HandleCommand;
-import io.github.cnadjim.customer.CustomerAggregateBuilder;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 
 import static io.github.cnadjim.customer.CustomerCommand.CreateCustomerCommand;
@@ -15,6 +18,10 @@ import static io.github.cnadjim.customer.CustomerEvent.CustomerNameUpdatedEvent;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
+
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 @Aggregate(threshold = 50)
 public class CustomerAggregate {
 
@@ -46,7 +53,7 @@ public class CustomerAggregate {
             throw new RuntimeException("Customer already exists for id " + event.id());
         }
 
-        return CustomerAggregateBuilder.builder()
+        return CustomerAggregate.builder()
                 .id(event.id())
                 .name(event.name())
                 .build();
@@ -58,7 +65,7 @@ public class CustomerAggregate {
             throw new RuntimeException("Customer does not exist for id " + event.id());
         }
 
-        return CustomerAggregateBuilder.from(aggregate)
+        return aggregate.toBuilder()
                 .name(event.newName())
                 .build();
     }
@@ -68,7 +75,7 @@ public class CustomerAggregate {
         if (isNull(aggregate)) {
             throw new RuntimeException("Customer does not exist for id " + event.id());
         }
-        return CustomerAggregateBuilder.from(aggregate)
+        return aggregate.toBuilder()
                 .birthday(event.newBirthDay())
                 .build();
     }

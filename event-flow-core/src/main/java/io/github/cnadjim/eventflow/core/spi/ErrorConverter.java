@@ -39,7 +39,7 @@ public interface ErrorConverter {
      */
     default Error convert(Throwable throwable) {
         try {
-            return Optional.ofNullable(throwable).flatMap(this::tryConvert).orElseGet(() -> defaultConvert(throwable));
+            return tryConvert(throwable).orElseGet(() -> defaultConvert(throwable));
         } catch (Exception ignored) {
             return defaultConvert(throwable);
         }

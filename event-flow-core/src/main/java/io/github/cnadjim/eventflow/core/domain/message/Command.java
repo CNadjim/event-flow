@@ -3,7 +3,12 @@ package io.github.cnadjim.eventflow.core.domain.message;
 import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.AggregateIdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.IdSupplier;
+import io.github.cnadjim.eventflow.core.domain.supplier.TimestampSupplier;
+import io.github.cnadjim.eventflow.core.domain.supplier.TopicSupplier;
+import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import org.apache.commons.lang3.StringUtils;
+
+import java.time.Instant;
 
 import static java.util.Objects.isNull;
 
@@ -18,7 +23,9 @@ import static java.util.Objects.isNull;
  */
 public record Command(String id,
                       Object payload,
-                      String aggregateId) implements Message, AggregateIdSupplier {
+                      Instant timestamp,
+                      String aggregateId,
+                      MessageTopic topic) implements Message, AggregateIdSupplier {
 
     /**
      * Compact constructor for the Command record.
@@ -27,12 +34,13 @@ public record Command(String id,
      * @throws BadArgumentException if payload is null or aggregateId is empty
      */
     public Command {
-        if (StringUtils.isBlank(id)) throw new BadArgumentException("id cannot be null");
+        if (isNull(topic)) throw new BadArgumentException("topic cannot be null");
         if (isNull(payload)) throw new BadArgumentException("payload cannot be null");
+        if (StringUtils.isBlank(id)) throw new BadArgumentException("id cannot be null");
         if (StringUtils.isBlank(aggregateId)) throw new BadArgumentException("aggregateId cannot be empty");
     }
 
     public Command(Object payload) {
-        this(IdSupplier.create(), payload, AggregateIdSupplier.getAggregateId(payload));
+        this(IdSupplier.create(), payload, TimestampSupplier.create(), AggregateIdSupplier.getAggregateId(payload), TopicSupplier.create(payload));
     }
 }

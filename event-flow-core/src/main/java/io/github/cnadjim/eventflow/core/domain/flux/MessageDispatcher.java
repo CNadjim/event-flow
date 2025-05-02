@@ -1,25 +1,11 @@
 package io.github.cnadjim.eventflow.core.domain.flux;
 
+import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
-import io.github.cnadjim.eventflow.core.domain.subscriber.DefaultMessageSubscriber;
+import io.github.cnadjim.eventflow.core.domain.message.MessageResult;
 import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 
-/**
- * A component that both publishes and dispatches messages of a specific type.
- * This interface extends MessagePublisher to provide additional functionality
- * for dispatching messages and subscribing to topics.
- *
- * @param <MESSAGE> the type of messages this dispatcher can handle, must extend Message
- */
-public interface MessageDispatcher<MESSAGE extends Message> extends MessagePublisher<MESSAGE> {
-
-    /**
-     * Returns the class of the message type this dispatcher can handle.
-     * This is used for type conversion when receiving generic messages.
-     *
-     * @return the class object representing the specific message type
-     */
-    Class<MESSAGE> dispatchMessageType();
+public interface MessageDispatcher<MESSAGE extends Message, DISPATCH_RESULT> extends MessagePublisher, MessageConverter<MESSAGE> {
 
     /**
      * Processes a message of the specific type.
@@ -27,7 +13,39 @@ public interface MessageDispatcher<MESSAGE extends Message> extends MessagePubli
      *
      * @param message the message to dispatch and process
      */
-    void dispatch(MESSAGE message);
+    DISPATCH_RESULT dispatch(MESSAGE message);
+
+    Error convert(Throwable exception);
+
+    default void onDispatchStart(Message message){
+
+    }
+
+    default void onDispatchSuccess(Message message){
+
+    }
+
+    default void onDispatchError(Message message, Error error){
+
+    }
+
+    default boolean convertAndDispatch(Message message) {
+        try {
+            onDispatchStart(message);
+            final MESSAGE convertedMessage = convert(message);
+            final DISPATCH_RESULT result = dispatch(convertedMessage);
+            final MessageResult messageResult = MessageResult.success(message, result);
+            publish(messageResult);
+            onDispatchSuccess(message);
+            return true;
+        } catch (Exception exception) {
+            final Error error = convert(exception);
+            final MessageResult messageResult = MessageResult.failure(message, error);
+            publish(messageResult);
+            onDispatchError(message, error);
+            return true;
+        }
+    }
 
     /**
      * Subscribes this dispatcher to a specific message topic.
@@ -37,7 +55,7 @@ public interface MessageDispatcher<MESSAGE extends Message> extends MessagePubli
      * @param messageTopic the topic to subscribe to
      */
     default void subscribe(MessageTopic messageTopic) {
-        final DefaultMessageSubscriber<MESSAGE> messageSubscriber = DefaultMessageSubscriber.create(messageTopic, dispatchMessageType(), this::dispatch, null);
+        final MessageSubscriber messageSubscriber = new DefaultMessageSubscriber(messageTopic, this::convertAndDispatch);
         subscribe(messageSubscriber);
     }
 }

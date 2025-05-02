@@ -25,6 +25,6 @@ public class TopicService implements FindTopics {
 
     public void save(final MessageTopic messageTopic) {
         topicRegistry.register(messageTopic);
-        topicRegistry.register(MessageResultTopic.create(messageTopic));
+        topicRegistry.register(new MessageResultTopic(messageTopic.name()));
     }
 }

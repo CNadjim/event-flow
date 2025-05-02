@@ -15,7 +15,7 @@ import static java.util.Objects.isNull;
 public record DefaultOrder(String field, Direction direction) implements Order {
 
     public DefaultOrder {
-        if (StringUtils.isBlank(field)) throw new BadArgumentException("field cannot be blank");
         if (isNull(direction)) throw new BadArgumentException("direction cannot be null");
+        if (StringUtils.isBlank(field)) throw new BadArgumentException("field cannot be blank");
     }
 }

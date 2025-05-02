@@ -75,21 +75,6 @@ public class ErrorConverterTest {
     }
 
     @Test
-    void convert_should_handle_null_throwable() {
-        // Arrange
-        // No need to stub tryConvert as it won't be called for null
-
-        // Act
-        Error result = errorConverter.convert(null);
-
-        // Assert
-        assertNull(result);
-        // tryConvert is not called for null due to Optional.ofNullable().flatMap() behavior
-        verify(errorConverter, never()).tryConvert(null);
-        verify(errorConverter).defaultConvert(null);
-    }
-
-    @Test
     void defaultConvert_should_call_fromThrowable() {
         // Arrange
         Throwable throwable = new RuntimeException("Test exception");

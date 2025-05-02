@@ -30,5 +30,4 @@ public record InternalServerError(Instant timestamp, String message, Object deta
     public static InternalServerError create(String message) {
         return new InternalServerError(Instant.now(), message, null);
     }
-
 }

@@ -1,6 +1,7 @@
 package io.github.cnadjim.eventflow.core.api;
 
 import io.github.cnadjim.eventflow.annotation.UseCase;
+import io.github.cnadjim.eventflow.core.domain.message.Command;
 
 import java.util.concurrent.CompletableFuture;
 
@@ -17,5 +18,9 @@ public interface SendCommand {
      * @param command The command object to be processed
      * @return A CompletableFuture containing the ID of the processed command
      */
-    CompletableFuture<String> send(Object command);
+    CompletableFuture<String> send(Command command);
+
+    default CompletableFuture<String> send(Object payload) {
+        return send(new Command(payload));
+    }
 }

@@ -1,8 +1,5 @@
 package io.github.cnadjim.eventflow.core.domain.topic;
 
-import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
-import io.github.cnadjim.eventflow.core.domain.message.Message;
-
 import java.util.concurrent.TimeUnit;
 
 public record MessageResultTopic(String name) implements Topic {
@@ -11,19 +8,12 @@ public record MessageResultTopic(String name) implements Topic {
 
     @Override
     public long retentionInMs() {
-        return TimeUnit.HOURS.toMillis(1);
+        return TimeUnit.MINUTES.toMillis(1);
     }
 
-    public static MessageResultTopic create(Message message) {
-        final Topic topic = message.topic();
-        if (topic instanceof MessageTopic) {
-            return create((MessageTopic) topic);
-        } else {
-            throw new BadArgumentException("topic not managed");
-        }
-    }
 
-    public static MessageResultTopic create(MessageTopic messageTopic) {
-        return new MessageResultTopic(messageTopic.name() + RESULT_SUFFIX);
+    @Override
+    public String name() {
+        return name + RESULT_SUFFIX;
     }
 }

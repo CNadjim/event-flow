@@ -47,20 +47,12 @@ public class DistributedEventFlowTest {
         assertEquals(commandId, commandResult);
     }
 
-    public void command_result_should_timeout() {
-        assertThrows(CompletionException.class, () -> {
-            final String commandId = UUID.randomUUID().toString();
-            final CustomerCommand command = new CustomerCommand.CreateCustomerCommand(commandId, "nadjim");
-            eventflow1.commandGateway().send(command).join();
-        });
-    }
-
     @Test
     public void query_result_should_succeed() {
         eventflow2.scanObject().scan(new CustomerQueryHandler()).forEach(handler -> eventflow2.handlerService().register(handler));
 
         final CustomerQuery.FindAllCustomer findAllCustomer = new CustomerQuery.FindAllCustomer();
-        final Collection<CustomerEntity> customers = eventflow1.queryGateway().send(findAllCustomer, ResponseType.listOf(CustomerEntity.class)).join();
+        final Collection<CustomerEntity> customers = eventflow1.queryGateway().send(findAllCustomer, ResponseType.collectionOf(CustomerEntity.class)).join();
 
         assertEquals(1, customers.size());
     }

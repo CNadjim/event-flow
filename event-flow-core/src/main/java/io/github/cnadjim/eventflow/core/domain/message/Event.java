@@ -4,6 +4,8 @@ import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.AggregateIdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.IdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.TimestampSupplier;
+import io.github.cnadjim.eventflow.core.domain.supplier.TopicSupplier;
+import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import org.apache.commons.lang3.StringUtils;
 
 import java.time.Instant;
@@ -23,7 +25,8 @@ import static java.util.Objects.isNull;
 public record Event(String id,
                     Object payload,
                     Instant timestamp,
-                    String aggregateId) implements Message, AggregateIdSupplier, TimestampSupplier, Comparable<Event> {
+                    String aggregateId,
+                    MessageTopic topic) implements Message, AggregateIdSupplier, TimestampSupplier, Comparable<Event> {
 
     /**
      * Compact constructor for the Event record.
@@ -32,13 +35,14 @@ public record Event(String id,
      * @throws BadArgumentException if payload is null, id is null, or aggregateId is empty
      */
     public Event {
-        if (isNull(payload)) throw new BadArgumentException("Payload cannot be null");
-        if (isNull(id)) throw new BadArgumentException("Id cannot be null");
-        if (StringUtils.isBlank(aggregateId)) throw new BadArgumentException("AggregateId cannot be null");
+        if (isNull(topic)) throw new BadArgumentException("topic cannot be null");
+        if (isNull(payload)) throw new BadArgumentException("payload cannot be null");
+        if (StringUtils.isBlank(id)) throw new BadArgumentException("id cannot be null");
+        if (StringUtils.isBlank(aggregateId)) throw new BadArgumentException("aggregateId cannot be empty");
     }
 
     public Event(Object payload) {
-        this(IdSupplier.create(), payload, TimestampSupplier.create(), AggregateIdSupplier.getAggregateId(payload));
+        this(IdSupplier.create(), payload, TimestampSupplier.create(), AggregateIdSupplier.getAggregateId(payload), TopicSupplier.create(payload));
     }
 
     /**

@@ -3,7 +3,7 @@ package io.github.cnadjim.eventflow.spring.rabbitmq.starter.config;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
-import io.github.cnadjim.eventflow.spring.rabbitmq.starter.rabbitmq.RabbitMqMessageConverter;
+import io.github.cnadjim.eventflow.spring.rabbitmq.starter.converter.RabbitMqMessageConverter;
 import org.springframework.amqp.core.AmqpAdmin;
 import org.springframework.amqp.rabbit.connection.CachingConnectionFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
@@ -57,13 +57,13 @@ public class RabbitMqConfig {
     }
 
     @Bean
-    public RabbitMqMessageConverter rabbitMqMessageConverter(@Qualifier("rabbitMqObjectMapper") ObjectMapper rabbitMqObjectMapper) {
+    public MessageConverter rabbitMqMessageConverter(@Qualifier("rabbitMqObjectMapper") ObjectMapper rabbitMqObjectMapper) {
         return new RabbitMqMessageConverter(rabbitMqObjectMapper);
     }
 
     @Bean
     public RabbitTemplate rabbitTemplate(final ConnectionFactory connectionFactory,
-                                         final RabbitMqMessageConverter rabbitMqMessageConverter) {
+                                         final MessageConverter rabbitMqMessageConverter) {
         final RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(rabbitMqMessageConverter);
         return rabbitTemplate;

@@ -3,20 +3,20 @@ package io.github.cnadjim.eventflow.core.domain.message;
 import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.IdSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.PayloadSupplier;
+import io.github.cnadjim.eventflow.core.domain.supplier.TimestampSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.TopicSupplier;
-import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import io.github.cnadjim.eventflow.core.domain.topic.Topic;
 
 import java.io.Serializable;
+import java.time.Instant;
 
 /**
  * {@code Message} is a sealed interface representing a generic message within the event flow core.
  * It extends several supplier interfaces to provide access to message attributes such as ID, payload, and topic.
  * It is {@code Serializable} to allow for message persistence and transport.
  * <p>
- * Permitted subtypes include {@link Aggregate}, {@link Command}, {@link Event}, {@link Query}, and {@link MessageResult}.
  */
-public interface Message extends IdSupplier, PayloadSupplier, TopicSupplier, Serializable {
+public interface Message extends IdSupplier, PayloadSupplier, TimestampSupplier, TopicSupplier, Serializable {
 
     /**
      * Returns the unique identifier of the message.
@@ -38,23 +38,22 @@ public interface Message extends IdSupplier, PayloadSupplier, TopicSupplier, Ser
      *
      * @return The message topic.
      */
-    @Override
-    default Topic topic() {
-        return new MessageTopic(payloadClassSimpleName());
-    }
+    Topic topic();
+
+    Instant timestamp();
 
     /**
      * Converts a message to a specific target type.
      *
-     * @param message    The message to convert.
-     * @param targetType The class of the target type.
-     * @param <MESSAGE>  The type parameter representing the target message type.
+     * @param message      The message to convert.
+     * @param messageClass The class of the target type.
+     * @param <MESSAGE>    The type parameter representing the target message type.
      * @return The converted message, cast to the target type.
      * @throws BadArgumentException if the message cannot be converted to the target type.
      */
-    static <MESSAGE extends Message> MESSAGE convert(Message message, Class<MESSAGE> targetType) {
-        if (targetType.isInstance(message)) {
-            return targetType.cast(message);
-        } else throw new BadArgumentException("Cannot convert message to a targetType of " + targetType.getName());
+    static <MESSAGE extends Message> MESSAGE convert(Message message, Class<MESSAGE> messageClass) {
+        if (messageClass.isInstance(message)) {
+            return messageClass.cast(message);
+        } else throw new BadArgumentException("Cannot convert message to a targetType of " + messageClass.getName());
     }
 }

@@ -2,50 +2,55 @@ package io.github.cnadjim.eventflow.core.service.gateway;
 
 import io.github.cnadjim.eventflow.annotation.DomainService;
 import io.github.cnadjim.eventflow.core.api.SendEvent;
+import io.github.cnadjim.eventflow.core.domain.error.Error;
+import io.github.cnadjim.eventflow.core.domain.flux.MessageGateway;
+import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
-import io.github.cnadjim.eventflow.core.domain.subscriber.EventResultSubscriber;
+import io.github.cnadjim.eventflow.core.domain.message.Message;
+import io.github.cnadjim.eventflow.core.domain.message.Query;
 import io.github.cnadjim.eventflow.core.spi.MessageBus;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.TimeUnit;
 
-/**
- * {@code EventGateway} is a domain service responsible for sending events to the system through a {@link MessageBus}.
- * It implements the {@link SendEvent} interface, providing a method to asynchronously send events and receive a
- * completion signal via a {@link CompletableFuture}.
- */
+@Slf4j
 @DomainService
-public class EventGateway implements SendEvent {
+public class EventGateway implements MessageGateway<Event>, SendEvent {
 
     private final MessageBus messageBus;
 
     /**
-     * Constructs an {@code EventGateway} with the required {@link MessageBus} dependency.
+     * Constructs a {@code CommandGateway} with the necessary {@link MessageBus} dependency.
      *
-     * @param messageBus The {@link MessageBus} used to publish events.
+     * @param messageBus The {@link MessageBus} used to send and receive command messages.
      */
-    public EventGateway(MessageBus messageBus) {
+    public EventGateway(final MessageBus messageBus) {
         this.messageBus = messageBus;
     }
 
-    /**
-     * Sends an event to the system asynchronously.
-     * It creates an {@link Event} message, subscribes an {@link EventResultSubscriber} to listen for the event's completion,
-     * publishes the event message to the {@link MessageBus}, and returns a {@link CompletableFuture} that completes when
-     * the event has been processed.  The future is configured with a timeout of 1 minute.
-     *
-     * @param eventPayload The event object to send.
-     * @return A {@link CompletableFuture} that completes when the event has been processed.
-     */
     @Override
-    public CompletableFuture<Void> send(Object eventPayload) {
-        final CompletableFuture<Void> eventResult = new CompletableFuture<>();
-        final Event eventMessage = new Event(eventPayload);
-        final EventResultSubscriber eventResultObserver = new EventResultSubscriber(eventMessage, eventResult);
+    public void subscribe(MessageSubscriber subscriber) {
+        messageBus.subscribe(subscriber);
+    }
 
-        messageBus.subscribe(eventResultObserver);
-        messageBus.publish(eventMessage);
+    @Override
+    public void publish(Message message) {
+        messageBus.publish(message);
+    }
 
-        return eventResult.orTimeout(1, TimeUnit.MINUTES);
+    @Override
+    public void onSuccess(Event message) {
+        log.debug("[ {} ] event {} executed successfully", message.id(), message.payloadClassSimpleName());
+    }
+
+    @Override
+    public void onError(Event message, Error error) {
+        log.debug("[ {} ] event {} executed with error {}", message.id(), message.payloadClassSimpleName(), error.message());
+    }
+
+    @Override
+    public CompletableFuture<Void> send(Event event) {
+        return sendAndSubscribe(event)
+                .thenApplyAsync(messageResult ->  null);
     }
 }

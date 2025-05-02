@@ -2,6 +2,7 @@ package io.github.cnadjim.eventflow.core.domain.message;
 
 import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.AggregateIdSupplier;
+import io.github.cnadjim.eventflow.core.domain.supplier.PayloadSupplier;
 import io.github.cnadjim.eventflow.core.domain.supplier.VersionSupplier;
 import org.apache.commons.lang3.StringUtils;
 
@@ -12,13 +13,13 @@ import static java.util.Objects.isNull;
  * An aggregate is a cluster of domain objects that can be treated as a single unit.
  * It encapsulates the state of an entity and ensures its consistency.
  *
- * @param version The version of the aggregate, used for optimistic concurrency control
- * @param payload The payload of the aggregate, containing the actual domain object
+ * @param version     The version of the aggregate, used for optimistic concurrency control
+ * @param payload     The payload of the aggregate, containing the actual domain object
  * @param aggregateId The unique identifier of the aggregate
  */
 public record Aggregate(Long version,
                         Object payload,
-                        String aggregateId) implements VersionSupplier, Message, AggregateIdSupplier, Comparable<Aggregate> {
+                        String aggregateId) implements VersionSupplier, PayloadSupplier, AggregateIdSupplier, Comparable<Aggregate> {
 
     /**
      * Compact constructor for the Aggregate record.
@@ -98,21 +99,10 @@ public record Aggregate(Long version,
      *
      * @param aggregateWrapper The aggregate to compare with
      * @return A negative integer, zero, or a positive integer as this aggregate's version
-     *         is less than, equal to, or greater than the specified aggregate's version
+     * is less than, equal to, or greater than the specified aggregate's version
      */
     @Override
     public int compareTo(Aggregate aggregateWrapper) {
         return version.compareTo(aggregateWrapper.version);
-    }
-
-    /**
-     * Returns the ID of this aggregate.
-     * This method is required by the Message interface and returns the aggregateId.
-     *
-     * @return The aggregate ID
-     */
-    @Override
-    public String id() {
-        return aggregateId();
     }
 }

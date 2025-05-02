@@ -11,6 +11,9 @@ import io.github.cnadjim.eventflow.sample.domain.account.command.UpdateAccountPs
 import io.github.cnadjim.eventflow.sample.domain.account.event.*;
 import io.github.cnadjim.eventflow.sample.domain.account.exception.AccountAlreadyExistException;
 import io.github.cnadjim.eventflow.sample.domain.account.exception.AccountNotFoundException;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
@@ -18,6 +21,9 @@ import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 
 @Aggregate
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder(toBuilder = true)
 public class Account {
 
     @AggregateId
@@ -62,7 +68,7 @@ public class Account {
             throw new AccountNotFoundException(event.email());
         }
 
-        return AccountBuilder.from(account)
+        return account.toBuilder()
                 .pseudonym(event.newPseudonym())
                 .build();
     }
@@ -73,7 +79,7 @@ public class Account {
             throw new AccountNotFoundException(event.email());
         }
 
-        return AccountBuilder.from(account)
+        return account.toBuilder()
                 .birthDate(event.newBirthDate())
                 .build();
     }
@@ -84,7 +90,7 @@ public class Account {
             throw new AccountAlreadyExistException(event.email());
         }
 
-        return AccountBuilder.builder()
+        return Account.builder()
                 .email(event.email())
                 .password(event.password())
                 .pseudonym(event.pseudonym())

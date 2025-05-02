@@ -48,15 +48,4 @@ public record DefaultError(Instant timestamp,
     public static DefaultError create(Integer status, String reasonPhrase, String message, Object details) {
         return new DefaultError(Instant.now(), status, reasonPhrase, message, details);
     }
-
-    /**
-     * Creates a new DefaultError from an existing Error.
-     *
-     * @param error The error to copy
-     * @return A new DefaultError instance with the same values as the input error
-     * @throws BadArgumentException if the input error has invalid values
-     */
-    public static DefaultError create(Error error) {
-        return new DefaultError(error.timestamp(), error.status(), error.reasonPhrase(), error.message(), error.details());
-    }
 }

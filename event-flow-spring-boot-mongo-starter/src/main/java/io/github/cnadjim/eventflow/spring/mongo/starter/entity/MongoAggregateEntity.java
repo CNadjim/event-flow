@@ -11,10 +11,12 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "aggregate-store")
 @CompoundIndex(name = "aggregate_version_idx", def = "{'aggregateId': 1, 'version': -1}")
 public class MongoAggregateEntity {
-    private Long version;
-    private Object payload;
+
     @Id
     private String aggregateId;
+
+    private Long version;
+    private Object payload;
 
     public static MongoAggregateEntity fromAggregate(Aggregate aggregate) {
         final MongoAggregateEntity aggregateEntity = new MongoAggregateEntity();

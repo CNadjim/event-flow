@@ -5,9 +5,9 @@ package io.github.cnadjim.eventflow.core.domain.flux;
  * This interface defines the core methods that every subscriber must implement
  * to receive and process items from a publisher.
  *
- * @param <ITEM> the type of items this subscriber can receive
+ * @param <ITEM_TYPE> the type of items this subscriber can receive
  */
-public interface Subscriber<ITEM> {
+public interface Subscriber<ITEM_TYPE> {
 
     /**
      * Called when the subscriber is subscribed to a publisher.
@@ -22,8 +22,9 @@ public interface Subscriber<ITEM> {
      * Called when a new item is available from the publisher.
      *
      * @param item the item emitted by the publisher
+     * @return true if the item was successfully processed, false otherwise
      */
-    void onNext(ITEM item);
+    boolean onNext(ITEM_TYPE item);
 
     /**
      * Called when an error occurs during processing.

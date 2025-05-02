@@ -1,13 +1,14 @@
 package io.github.cnadjim.eventflow.core.service.dispatcher;
 
 import io.github.cnadjim.eventflow.annotation.DomainService;
+import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageDispatcher;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.handler.CommandHandler;
 import io.github.cnadjim.eventflow.core.domain.message.Aggregate;
 import io.github.cnadjim.eventflow.core.domain.message.Command;
-import io.github.cnadjim.eventflow.core.domain.message.CommandResult;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
+import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.service.AggregateService;
 import io.github.cnadjim.eventflow.core.spi.ErrorConverter;
 import io.github.cnadjim.eventflow.core.spi.EventStore;
@@ -19,16 +20,9 @@ import java.util.Collection;
 
 import static java.util.Objects.nonNull;
 
-/**
- * {@code CommandDispatcher} is a domain service responsible for dispatching commands to their respective
- * {@link CommandHandler}s, applying the resulting events to the aggregate, persisting events, and publishing
- * both the resulting events and a {@link CommandResult}. It implements the {@link MessageDispatcher} interface
- * for {@link Command} messages.
- */
 @Slf4j
 @DomainService
-public class CommandDispatcher implements MessageDispatcher<Command> {
-
+public class CommandDispatcher implements MessageDispatcher<Command, String> {
 
     private final MessageBus messageBus;
     private final EventStore eventStore;
@@ -57,48 +51,49 @@ public class CommandDispatcher implements MessageDispatcher<Command> {
         this.aggregateService = aggregateService;
     }
 
-    /**
-     * Returns the message type handled by this dispatcher, which is {@link Command}.
-     *
-     * @return The class of the message type handled by this dispatcher.
-     */
     @Override
-    public Class<Command> dispatchMessageType() {
-        return Command.class;
+    public Command convert(Message message) {
+        return convert(message, Command.class);
     }
 
-    /**
-     * Dispatches a command to its corresponding handler, applies the resulting events to the aggregate,
-     * persists the events, and publishes both the events and a {@link CommandResult}.
-     *
-     * @param message The {@link Command} message to dispatch.
-     */
     @Override
-    public void dispatch(Command message) {
+    public Error convert(Throwable throwable) {
+        return errorConverter.convert(throwable);
+    }
+
+    @Override
+    public void onDispatchStart(Message message) {
+        log.debug("[ {} ] Dispatching command {}", message.id(), message.payloadClassSimpleName());
+    }
+
+    @Override
+    public void onDispatchSuccess(Message message) {
+        log.debug("[ {} ] Dispatching command {} finished successfully", message.id(), message.payloadClassSimpleName());
+    }
+
+    @Override
+    public void onDispatchError(Message message, Error error) {
+        log.debug("[ {} ] Dispatching command {} finished with error {}", message.id(), message.payloadClassSimpleName(), error.message());
+    }
+
+    @Override
+    public String dispatch(Command message) {
         final String aggregateId = message.aggregateId();
 
-        try {
-            log.debug("[ {} ] Dispatching command {}", message.id(), message.payloadClassSimpleName());
+        final CommandHandler commandHandler = handlerRegistry.getCommandHandler(message.payloadClass());
+        final Collection<Event> events = commandHandler.handle(message);
 
-            final CommandHandler commandHandler = handlerRegistry.getCommandHandler(message.payloadClass());
-            final Collection<Event> events = commandHandler.handle(message);
+        final Aggregate aggregate = aggregateService.loadAggregateState(aggregateId, events);
 
-            final Aggregate aggregate = aggregateService.loadAggregateState(aggregateId, events);
+        log.debug("Aggregate {} - Final Aggregate state: {}", aggregateId, aggregate);
 
-            log.debug("Aggregate {} - Final Aggregate state: {}", aggregateId, aggregate);
-
-            if (nonNull(aggregate.payload())) {
-                events.forEach(eventStore::save);
-            }
-
-            events.forEach(messageBus::publish);
-
-            messageBus.publish(CommandResult.success(message));
-            log.debug("[ {} ] Dispatching command finished successfully", message.id());
-        } catch (Exception exception) {
-            messageBus.publish(CommandResult.failure(message, errorConverter.convert(exception)));
-            log.error("[ {} ] Dispatching command finished with error", message.id(), exception);
+        if (nonNull(aggregate.payload())) {
+            events.forEach(eventStore::save);
         }
+
+        events.forEach(messageBus::publish);
+
+        return aggregateId;
     }
 
     /**
@@ -107,7 +102,12 @@ public class CommandDispatcher implements MessageDispatcher<Command> {
      * @param subscriber The subscriber to register.
      */
     @Override
-    public void subscribe(final MessageSubscriber<Command> subscriber) {
+    public void subscribe(MessageSubscriber subscriber) {
         messageBus.subscribe(subscriber);
+    }
+
+    @Override
+    public void publish(Message message) {
+        messageBus.publish(message);
     }
 }

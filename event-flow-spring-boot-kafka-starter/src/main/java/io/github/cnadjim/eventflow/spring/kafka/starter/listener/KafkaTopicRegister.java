@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 @RequiredArgsConstructor
-public class SpringTopicRegister  {
+public class KafkaTopicRegister {
     private final TopicService topicService;
     private final KafkaService kafkaService;
 
