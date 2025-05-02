@@ -4,7 +4,9 @@ import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 
-
+/**
+ * Work in progress on kafka support
+ */
 @Profile("kafka")
 @AutoConfiguration
 @ComponentScan(basePackageClasses = EventFlowKafkaAutoConfiguration.class)
