@@ -44,7 +44,6 @@ public class RabbitMqSubscriberConsumer implements Runnable, ChannelAwareMessage
         executorService.shutdown();
     }
 
-
     @Override
     public void onMessage(Message message, Channel channel) {
         try {

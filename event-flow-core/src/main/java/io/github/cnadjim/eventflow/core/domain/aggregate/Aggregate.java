@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.core.domain.message;
+package io.github.cnadjim.eventflow.core.domain.aggregate;
 
 import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.supplier.AggregateIdSupplier;

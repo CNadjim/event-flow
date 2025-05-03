@@ -11,6 +11,7 @@ import io.github.cnadjim.eventflow.core.service.dispatcher.CommandDispatcher;
 import io.github.cnadjim.eventflow.core.service.dispatcher.EventDispatcher;
 import io.github.cnadjim.eventflow.core.service.dispatcher.QueryDispatcher;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
@@ -29,6 +30,7 @@ import static java.util.Objects.isNull;
  * It provides functionalities to register handlers explicitly, scan for handlers within a package or object,
  * and subscribe handlers to their respective dispatchers.
  */
+@Slf4j
 @DomainService
 public class HandlerService implements RegisterHandler, ScanPackage, ScanObject {
     private final HandlerRegistry handlerRegistry;
@@ -237,6 +239,7 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
                 }
             } catch (ClassNotFoundException ignored) {
                 // Log this, even if ignored
+                log.warn("Class not found: {}", className);
             }
         }
 

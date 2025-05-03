@@ -1,7 +1,6 @@
 package io.github.cnadjim.eventflow.spring.starter.exception;
 
 
-import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowException;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.http.HttpStatus;
@@ -19,8 +18,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(EventFlowException.class)
     public ResponseEntity<ExceptionResponse> handleException(EventFlowException exception) {
-        final Error error = exception;
-        final ExceptionResponse exceptionResponse = ExceptionResponse.create(error);
+        final ExceptionResponse exceptionResponse = ExceptionResponse.create(exception);
         return new ResponseEntity<>(exceptionResponse, HttpStatus.valueOf(exceptionResponse.status()));
     }
 

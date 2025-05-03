@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.core.domain.handler.EventSourcingHandler;
-import io.github.cnadjim.eventflow.core.domain.message.Aggregate;
+import io.github.cnadjim.eventflow.core.domain.aggregate.Aggregate;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import io.github.cnadjim.eventflow.core.spi.AggregateStore;
@@ -56,10 +56,10 @@ class AggregateServiceTest {
         TestPayload initialPayload = new TestPayload(aggregateId, "initial");
         TestPayload updatedPayload = new TestPayload(aggregateId, "updated");
 
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate initialAggregate =
-                new io.github.cnadjim.eventflow.core.domain.message.Aggregate(0L, initialPayload, aggregateId);
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate updatedAggregate =
-                new io.github.cnadjim.eventflow.core.domain.message.Aggregate(1L, updatedPayload, aggregateId);
+        Aggregate initialAggregate =
+                new Aggregate(0L, initialPayload, aggregateId);
+        Aggregate updatedAggregate =
+                new Aggregate(1L, updatedPayload, aggregateId);
 
         Event event = new Event("event-id", new TestEvent("update"), Instant.now(), aggregateId, new MessageTopic("event"));
 
@@ -71,7 +71,7 @@ class AggregateServiceTest {
                 .thenReturn(updatedAggregate);
 
         // Act
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate result =
+        Aggregate result =
                 aggregateService.loadAggregateState(aggregateId, List.of(event));
 
         // Assert
@@ -87,8 +87,8 @@ class AggregateServiceTest {
         String aggregateId = "test-aggregate-id";
         TestPayload payload = new TestPayload(aggregateId, "new");
 
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate newAggregate =
-                new io.github.cnadjim.eventflow.core.domain.message.Aggregate(1L, payload, aggregateId);
+        Aggregate newAggregate =
+                new Aggregate(1L, payload, aggregateId);
 
         Event event = new Event("event-id", new TestEvent("create"), Instant.now(), aggregateId, new MessageTopic("event"));
 
@@ -96,17 +96,17 @@ class AggregateServiceTest {
                 .thenReturn(Optional.empty());
         when(handlerRegistry.getEventSourcingHandler(event.payloadClass()))
                 .thenReturn(eventSourcingHandler);
-        when(eventSourcingHandler.apply(eq(event), any(io.github.cnadjim.eventflow.core.domain.message.Aggregate.class)))
+        when(eventSourcingHandler.apply(eq(event), any(Aggregate.class)))
                 .thenReturn(newAggregate);
 
         // Act
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate result =
+        Aggregate result =
                 aggregateService.loadAggregateState(aggregateId, List.of(event));
 
         // Assert
         assertEquals(newAggregate, result);
         verify(handlerRegistry).getEventSourcingHandler(event.payloadClass());
-        verify(eventSourcingHandler).apply(eq(event), any(io.github.cnadjim.eventflow.core.domain.message.Aggregate.class));
+        verify(eventSourcingHandler).apply(eq(event), any(Aggregate.class));
         verify(aggregateStore, never()).save(any());
     }
 
@@ -116,10 +116,10 @@ class AggregateServiceTest {
         String aggregateId = "test-aggregate-id";
         TestPayload initialPayload = new TestPayload(aggregateId, "initial");
 
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate initialAggregate =
-                new io.github.cnadjim.eventflow.core.domain.message.Aggregate(0L, initialPayload, aggregateId);
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate nullPayloadAggregate =
-                new io.github.cnadjim.eventflow.core.domain.message.Aggregate(1L, null, aggregateId);
+        Aggregate initialAggregate =
+                new Aggregate(0L, initialPayload, aggregateId);
+        Aggregate nullPayloadAggregate =
+                new Aggregate(1L, null, aggregateId);
 
         Event event = new Event("event-id", new TestEvent("delete"), Instant.now(), aggregateId, new MessageTopic("event"));
 
@@ -131,7 +131,7 @@ class AggregateServiceTest {
                 .thenReturn(nullPayloadAggregate);
 
         // Act
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate result =
+        Aggregate result =
                 aggregateService.loadAggregateState(aggregateId, List.of(event));
 
         // Assert
@@ -224,14 +224,14 @@ class AggregateServiceTest {
         String aggregateId = "test-aggregate-id";
         TestPayload payload = new TestPayload(aggregateId, "initial");
 
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate aggregate =
-                new io.github.cnadjim.eventflow.core.domain.message.Aggregate(0L, payload, aggregateId);
+        Aggregate aggregate =
+                new Aggregate(0L, payload, aggregateId);
 
         when(aggregateStore.findTopByAggregateIdOrderByVersionDesc(aggregateId))
                 .thenReturn(Optional.of(aggregate));
 
         // Act
-        io.github.cnadjim.eventflow.core.domain.message.Aggregate result =
+        Aggregate result =
                 aggregateService.loadAggregateState(aggregateId, Collections.emptyList());
 
         // Assert

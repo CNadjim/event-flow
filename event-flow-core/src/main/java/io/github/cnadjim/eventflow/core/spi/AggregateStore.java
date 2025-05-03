@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.spi;
 
-import io.github.cnadjim.eventflow.core.domain.message.Aggregate;
+import io.github.cnadjim.eventflow.core.domain.aggregate.Aggregate;
 
 import java.util.Optional;
 

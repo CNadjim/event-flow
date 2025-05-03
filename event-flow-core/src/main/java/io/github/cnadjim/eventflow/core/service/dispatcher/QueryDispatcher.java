@@ -4,17 +4,13 @@ import io.github.cnadjim.eventflow.annotation.DomainService;
 import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageDispatcher;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
-import io.github.cnadjim.eventflow.core.domain.flux.Subscriber;
 import io.github.cnadjim.eventflow.core.domain.handler.QueryHandler;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
-import io.github.cnadjim.eventflow.core.domain.message.MessageResult;
 import io.github.cnadjim.eventflow.core.domain.message.Query;
 import io.github.cnadjim.eventflow.core.spi.ErrorConverter;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
 import io.github.cnadjim.eventflow.core.spi.MessageBus;
 import lombok.extern.slf4j.Slf4j;
-
-import java.util.Optional;
 
 @Slf4j
 @DomainService
@@ -40,21 +36,6 @@ public class QueryDispatcher implements MessageDispatcher<Query, Object> {
     @Override
     public Error convert(Throwable throwable) {
         return errorConverter.convert(throwable);
-    }
-
-    @Override
-    public void onDispatchStart(Message message) {
-        log.debug("[ {} ] Dispatching query {}", message.id(), message.payloadClassSimpleName());
-    }
-
-    @Override
-    public void onDispatchSuccess(Message message) {
-        log.debug("[ {} ] Dispatching query {} finished successfully", message.id(), message.payloadClassSimpleName());
-    }
-
-    @Override
-    public void onDispatchError(Message message, Error error) {
-        log.debug("[ {} ] Dispatching query {} finished with error {}", message.id(), message.payloadClassSimpleName(), error.message());
     }
 
     @Override

@@ -146,7 +146,7 @@ public record Eventflow(ScanObject scanObject,
             final AggregateService aggregateService = new AggregateService(eventStore, aggregateStore, handlerRegistry);
             final EventDispatcher eventDispatcher = new EventDispatcher(messageBus, errorConverter, handlerRegistry);
             final QueryDispatcher queryDispatcher = new QueryDispatcher(messageBus, errorConverter, handlerRegistry);
-            final CommandDispatcher commandDispatcher = new CommandDispatcher(messageBus, eventStore, errorConverter, handlerRegistry, aggregateService);
+            final CommandDispatcher commandDispatcher = new CommandDispatcher(messageBus, errorConverter, handlerRegistry, aggregateService);
 
             final HandlerService handlerService = new HandlerService(topicService, handlerRegistry, eventDispatcher, queryDispatcher, commandDispatcher);
 

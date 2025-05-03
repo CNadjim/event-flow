@@ -19,11 +19,6 @@ public class EventGateway implements MessageGateway<Event>, SendEvent {
 
     private final MessageBus messageBus;
 
-    /**
-     * Constructs a {@code CommandGateway} with the necessary {@link MessageBus} dependency.
-     *
-     * @param messageBus The {@link MessageBus} used to send and receive command messages.
-     */
     public EventGateway(final MessageBus messageBus) {
         this.messageBus = messageBus;
     }
@@ -36,16 +31,6 @@ public class EventGateway implements MessageGateway<Event>, SendEvent {
     @Override
     public void publish(Message message) {
         messageBus.publish(message);
-    }
-
-    @Override
-    public void onSuccess(Event message) {
-        log.debug("[ {} ] event {} executed successfully", message.id(), message.payloadClassSimpleName());
-    }
-
-    @Override
-    public void onError(Event message, Error error) {
-        log.debug("[ {} ] event {} executed with error {}", message.id(), message.payloadClassSimpleName(), error.message());
     }
 
     @Override

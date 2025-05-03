@@ -37,21 +37,6 @@ public class EventDispatcher implements MessageDispatcher<Event, Void> {
     }
 
     @Override
-    public void onDispatchStart(Message message) {
-        log.debug("[ {} ] Dispatching event {}", message.id(), message.payloadClassSimpleName());
-    }
-
-    @Override
-    public void onDispatchSuccess(Message message) {
-        log.debug("[ {} ] Dispatching event {} finished successfully", message.id(), message.payloadClassSimpleName());
-    }
-
-    @Override
-    public void onDispatchError(Message message, Error error) {
-        log.debug("[ {} ] Dispatching event {} finished with error {}", message.id(), message.payloadClassSimpleName(), error.message());
-    }
-
-    @Override
     public Void dispatch(Event message) {
         final EventHandler eventHandler = handlerRegistry.getEventHandler(message.payloadClass());
         eventHandler.onEvent(message);

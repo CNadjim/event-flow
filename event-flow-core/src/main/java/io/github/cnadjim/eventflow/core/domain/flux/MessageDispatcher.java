@@ -1,11 +1,12 @@
 package io.github.cnadjim.eventflow.core.domain.flux;
 
 import io.github.cnadjim.eventflow.core.domain.error.Error;
+import io.github.cnadjim.eventflow.core.domain.log.Logger;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.domain.message.MessageResult;
 import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 
-public interface MessageDispatcher<MESSAGE extends Message, DISPATCH_RESULT> extends MessagePublisher, MessageConverter<MESSAGE> {
+public interface MessageDispatcher<MESSAGE extends Message, DISPATCH_RESULT> extends MessagePublisher, MessageConverter<MESSAGE>, Logger {
 
     /**
      * Processes a message of the specific type.
@@ -17,16 +18,16 @@ public interface MessageDispatcher<MESSAGE extends Message, DISPATCH_RESULT> ext
 
     Error convert(Throwable exception);
 
-    default void onDispatchStart(Message message){
-
+    default void onDispatchStart(Message message) {
+        logger().debug("[ {} ] Dispatching {} {}", message.id(), message.getClass().getSimpleName(), message.payloadClassSimpleName());
     }
 
-    default void onDispatchSuccess(Message message){
-
+    default void onDispatchSuccess(Message message) {
+        logger().debug("[ {} ] Dispatching {} {} finished successfully", message.id(), message.getClass().getSimpleName(), message.payloadClassSimpleName());
     }
 
-    default void onDispatchError(Message message, Error error){
-
+    default void onDispatchError(Message message, Error error) {
+        logger().debug("[ {} ] Dispatching {} {} finished with error : '{}'", message.id(), message.getClass().getSimpleName(), message.payloadClassSimpleName(), error.message());
     }
 
     default boolean convertAndDispatch(Message message) {
@@ -37,14 +38,14 @@ public interface MessageDispatcher<MESSAGE extends Message, DISPATCH_RESULT> ext
             final MessageResult messageResult = MessageResult.success(message, result);
             publish(messageResult);
             onDispatchSuccess(message);
-            return true;
         } catch (Exception exception) {
             final Error error = convert(exception);
             final MessageResult messageResult = MessageResult.failure(message, error);
             publish(messageResult);
             onDispatchError(message, error);
-            return true;
         }
+
+        return true;
     }
 
     /**

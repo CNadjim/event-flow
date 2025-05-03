@@ -96,7 +96,7 @@ public class SpringEventFlowConfig {
                                                final EventStore eventStore,
                                                final HandlerRegistry handlerRegistry,
                                                final AggregateService aggregateService) {
-        return new CommandDispatcher(messageBus, eventStore, errorConverter, handlerRegistry, aggregateService);
+        return new CommandDispatcher(messageBus, errorConverter, handlerRegistry, aggregateService);
     }
 
     @Bean

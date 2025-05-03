@@ -23,7 +23,7 @@ public class EventFlowException extends RuntimeException implements Error {
         this.error = null;
     }
 
-    public boolean hasError(){
+    public boolean hasError() {
         return nonNull(error);
     }
 

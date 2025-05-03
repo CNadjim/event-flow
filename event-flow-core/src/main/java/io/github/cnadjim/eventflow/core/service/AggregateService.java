@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.annotation.DomainService;
-import io.github.cnadjim.eventflow.core.domain.message.Aggregate;
+import io.github.cnadjim.eventflow.core.domain.aggregate.Aggregate;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.domain.handler.EventSourcingHandler;
 import io.github.cnadjim.eventflow.core.spi.AggregateStore;
@@ -67,7 +67,11 @@ public class AggregateService {
         if (isNull(aggregate.payload())) {
             eventStore.deleteAllByAggregateId(aggregateId);
             aggregateStore.deleteAllByAggregateId(aggregateId);
-        } else if (aggregate.isSnapshotEnabled() && aggregate.version() % aggregate.threshold() == 0) {
+        } else {
+            events.forEach(eventStore::save);
+        }
+
+        if (aggregate.isSnapshotEnabled() && aggregate.version() % aggregate.threshold() == 0) {
             aggregateStore.save(aggregate);
         }
 

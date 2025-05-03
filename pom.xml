@@ -13,7 +13,6 @@
         <module>event-flow-annotation</module>
         <module>event-flow-core</module>
         <module>event-flow-spring-boot-starter</module>
-        <module>event-flow-spring-boot-kafka-starter</module>
         <module>event-flow-spring-boot-mongo-starter</module>
         <module>event-flow-spring-boot-rabbitmq-starter</module>
         <module>event-flow-spring-boot-sample</module>

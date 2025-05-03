@@ -18,7 +18,7 @@ public class RabbitMqMessageConverter implements MessageConverter {
 
     @NonNull
     @Override
-    public Message toMessage(@NonNull Object object,@NonNull MessageProperties messageProperties) throws MessageConversionException {
+    public Message toMessage(@NonNull Object object, @NonNull MessageProperties messageProperties) throws MessageConversionException {
         try {
             byte[] bytes = objectMapper.writerFor(Object.class).writeValueAsBytes(object);
             messageProperties.setContentType(MessageProperties.CONTENT_TYPE_JSON);
@@ -28,12 +28,13 @@ public class RabbitMqMessageConverter implements MessageConverter {
             throw new MessageConversionException("Failed to create message", ExceptionUtils.getRootCause(e));
         }
     }
+
     @NonNull
     @Override
     public Object fromMessage(@NonNull Message message) throws MessageConversionException {
         try {
             return objectMapper.readValue(message.getBody(), io.github.cnadjim.eventflow.core.domain.message.Message.class);
-        }  catch (Exception e) {
+        } catch (Exception e) {
             throw new MessageConversionException("Failed to create message", ExceptionUtils.getRootCause(e));
         }
     }

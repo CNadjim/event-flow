@@ -5,27 +5,23 @@ import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageDispatcher;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.handler.CommandHandler;
-import io.github.cnadjim.eventflow.core.domain.message.Aggregate;
+import io.github.cnadjim.eventflow.core.domain.aggregate.Aggregate;
 import io.github.cnadjim.eventflow.core.domain.message.Command;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.service.AggregateService;
 import io.github.cnadjim.eventflow.core.spi.ErrorConverter;
-import io.github.cnadjim.eventflow.core.spi.EventStore;
 import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
 import io.github.cnadjim.eventflow.core.spi.MessageBus;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
 
-import static java.util.Objects.nonNull;
-
 @Slf4j
 @DomainService
 public class CommandDispatcher implements MessageDispatcher<Command, String> {
 
     private final MessageBus messageBus;
-    private final EventStore eventStore;
     private final ErrorConverter errorConverter;
     private final HandlerRegistry handlerRegistry;
     private final AggregateService aggregateService;
@@ -34,18 +30,15 @@ public class CommandDispatcher implements MessageDispatcher<Command, String> {
      * Constructs a {@code CommandDispatcher} with the necessary dependencies.
      *
      * @param messageBus       The {@link MessageBus} for publishing messages.
-     * @param eventStore       The {@link EventStore} for persisting events.
      * @param errorConverter   The {@link ErrorConverter} for converting exceptions to error messages.
      * @param handlerRegistry  The {@link HandlerRegistry} for retrieving command handlers.
      * @param aggregateService The {@link AggregateService} for loading and applying aggregate state.
      */
     public CommandDispatcher(MessageBus messageBus,
-                             EventStore eventStore,
                              ErrorConverter errorConverter,
                              HandlerRegistry handlerRegistry,
                              AggregateService aggregateService) {
         this.errorConverter = errorConverter;
-        this.eventStore = eventStore;
         this.messageBus = messageBus;
         this.handlerRegistry = handlerRegistry;
         this.aggregateService = aggregateService;
@@ -62,45 +55,22 @@ public class CommandDispatcher implements MessageDispatcher<Command, String> {
     }
 
     @Override
-    public void onDispatchStart(Message message) {
-        log.debug("[ {} ] Dispatching command {}", message.id(), message.payloadClassSimpleName());
-    }
-
-    @Override
-    public void onDispatchSuccess(Message message) {
-        log.debug("[ {} ] Dispatching command {} finished successfully", message.id(), message.payloadClassSimpleName());
-    }
-
-    @Override
-    public void onDispatchError(Message message, Error error) {
-        log.debug("[ {} ] Dispatching command {} finished with error {}", message.id(), message.payloadClassSimpleName(), error.message());
-    }
-
-    @Override
     public String dispatch(Command message) {
         final String aggregateId = message.aggregateId();
 
         final CommandHandler commandHandler = handlerRegistry.getCommandHandler(message.payloadClass());
+
         final Collection<Event> events = commandHandler.handle(message);
 
         final Aggregate aggregate = aggregateService.loadAggregateState(aggregateId, events);
 
         log.debug("Aggregate {} - Final Aggregate state: {}", aggregateId, aggregate);
 
-        if (nonNull(aggregate.payload())) {
-            events.forEach(eventStore::save);
-        }
-
         events.forEach(messageBus::publish);
 
         return aggregateId;
     }
 
-    /**
-     * Subscribes a {@link MessageSubscriber} to the {@link MessageBus} to receive command messages.
-     *
-     * @param subscriber The subscriber to register.
-     */
     @Override
     public void subscribe(MessageSubscriber subscriber) {
         messageBus.subscribe(subscriber);

@@ -1,7 +1,7 @@
 package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
-import io.github.cnadjim.eventflow.core.domain.message.Aggregate;
+import io.github.cnadjim.eventflow.core.domain.aggregate.Aggregate;
 import io.github.cnadjim.eventflow.core.spi.AggregateStore;
 
 import java.util.*;

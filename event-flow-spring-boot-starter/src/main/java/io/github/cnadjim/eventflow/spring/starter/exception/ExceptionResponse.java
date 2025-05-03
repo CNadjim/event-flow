@@ -40,10 +40,6 @@ public record ExceptionResponse(Instant timestamp,
         );
     }
 
-    public static ExceptionResponse create(HttpStatus httpStatus, String message) {
-        return create(httpStatus, message, null);
-    }
-
     public static ExceptionResponse create(HttpStatus httpStatus, String message, Object details) {
         return new ExceptionResponse(
                 Instant.now(),
@@ -53,17 +49,6 @@ public record ExceptionResponse(Instant timestamp,
                 details
         );
     }
-
-    public static ExceptionResponse create(Exception exception) {
-        return new ExceptionResponse(
-                Instant.now(),
-                DEFAULT_STATUS.value(),
-                DEFAULT_STATUS.getReasonPhrase(),
-                ExceptionUtils.getRootCauseMessage(exception),
-                ExceptionUtils.getRootCauseStackTraceList(exception)
-        );
-    }
-
 
     public static ExceptionResponse create(BaseException baseException) {
         return new ExceptionResponse(
