@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.sample.dto.request;
+package io.github.cnadjim.eventflow.sample.model.request;
 
 import jakarta.validation.constraints.NotNull;
 

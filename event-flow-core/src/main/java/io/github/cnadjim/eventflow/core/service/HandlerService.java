@@ -1,6 +1,10 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.annotation.*;
+import io.github.cnadjim.eventflow.annotation.CommandHandler;
+import io.github.cnadjim.eventflow.annotation.EventHandler;
+import io.github.cnadjim.eventflow.annotation.EventSourcingHandler;
+import io.github.cnadjim.eventflow.annotation.QueryHandler;
 import io.github.cnadjim.eventflow.core.api.RegisterHandler;
 import io.github.cnadjim.eventflow.core.api.ScanObject;
 import io.github.cnadjim.eventflow.core.api.ScanPackage;
@@ -26,7 +30,7 @@ import static java.util.Objects.isNull;
 
 /**
  * {@code HandlerService} is a domain service responsible for managing and registering different types of handlers
- * (e.g., {@link EventHandler}, {@link QueryHandler}, {@link CommandHandler}, {@link EventSourcingHandler}).
+ * (e.g., {@link io.github.cnadjim.eventflow.core.domain.handler.EventHandler}, {@link io.github.cnadjim.eventflow.core.domain.handler.QueryHandler}, {@link io.github.cnadjim.eventflow.core.domain.handler.CommandHandler}, {@link io.github.cnadjim.eventflow.core.domain.handler.EventSourcingHandler}).
  * It provides functionalities to register handlers explicitly, scan for handlers within a package or object,
  * and subscribe handlers to their respective dispatchers.
  */
@@ -83,19 +87,19 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
         topicService.save(messageTopic);
 
         switch (handler) {
-            case EventHandler eventHandler -> {
+            case io.github.cnadjim.eventflow.core.domain.handler.EventHandler eventHandler -> {
                 handlerRegistry.registerHandler(eventHandler);
                 eventDispatcher.subscribe(messageTopic);
             }
-            case QueryHandler queryHandler -> {
+            case io.github.cnadjim.eventflow.core.domain.handler.QueryHandler queryHandler -> {
                 handlerRegistry.registerHandler(queryHandler);
                 queryDispatcher.subscribe(messageTopic);
             }
-            case CommandHandler commandHandler -> {
+            case io.github.cnadjim.eventflow.core.domain.handler.CommandHandler commandHandler -> {
                 handlerRegistry.registerHandler(commandHandler);
                 commandDispatcher.subscribe(messageTopic);
             }
-            case EventSourcingHandler eventSourcingHandler -> {
+            case io.github.cnadjim.eventflow.core.domain.handler.EventSourcingHandler eventSourcingHandler -> {
                 handlerRegistry.registerHandler(eventSourcingHandler);
             }
             default -> throw new BadArgumentException("Unexpected value: " + handler);
@@ -104,8 +108,8 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
 
 
     /**
-     * Scans an object instance for methods annotated with {@link HandleEvent}, {@link HandleQuery}, {@link HandleCommand},
-     * or {@link ApplyEvent} and creates corresponding handlers.
+     * Scans an object instance for methods annotated with {@link EventHandler}, {@link QueryHandler}, {@link CommandHandler},
+     * or {@link EventSourcingHandler} and creates corresponding handlers.
      *
      * @param instance The object instance to scan.
      * @return A collection of {@link Handler} instances found in the object.  Returns an empty collection if the instance is null.
@@ -126,17 +130,17 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
             if (methodParameterTypes.length > 0) {
                 final Class<?> messagePayloadClass = method.getParameterTypes()[0];
 
-                if (method.isAnnotationPresent(HandleEvent.class)) {
-                    final EventHandler eventHandler = EventHandler.create(messagePayloadClass, instance, method);
+                if (method.isAnnotationPresent(EventHandler.class)) {
+                    final DefaultEventHandler eventHandler = new DefaultEventHandler(messagePayloadClass, instance, method);
                     handlers.add(eventHandler);
-                } else if (method.isAnnotationPresent(HandleQuery.class)) {
-                    final QueryHandler queryHandler = QueryHandler.create(messagePayloadClass, instance, method);
+                } else if (method.isAnnotationPresent(QueryHandler.class)) {
+                    final DefaultQueryHandler queryHandler = new DefaultQueryHandler(messagePayloadClass, instance, method);
                     handlers.add(queryHandler);
-                } else if (method.isAnnotationPresent(HandleCommand.class)) {
-                    final CommandHandler commandHandler = CommandHandler.create(messagePayloadClass, instance, method);
+                } else if (method.isAnnotationPresent(CommandHandler.class)) {
+                    final DefaultCommandHandler commandHandler = new DefaultCommandHandler(messagePayloadClass, instance, method);
                     handlers.add(commandHandler);
-                } else if (method.isAnnotationPresent(ApplyEvent.class)) {
-                    final EventSourcingHandler eventSourcingHandler = EventSourcingHandler.create(messagePayloadClass, instance, method);
+                } else if (method.isAnnotationPresent(EventSourcingHandler.class)) {
+                    final DefaultEventSourcingHandler eventSourcingHandler = new DefaultEventSourcingHandler(messagePayloadClass, instance, method);
                     handlers.add(eventSourcingHandler);
                 }
             }

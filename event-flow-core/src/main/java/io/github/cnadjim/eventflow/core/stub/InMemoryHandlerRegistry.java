@@ -39,21 +39,21 @@ public class InMemoryHandlerRegistry implements HandlerRegistry {
 
     @Override
     public Optional<CommandHandler> findCommandHandler(Class<?> messagePayloadClass) {
-        return Optional.ofNullable(commandHandlers.get(messagePayloadClass));
+        return Optional.ofNullable(commandHandlers.getOrDefault(messagePayloadClass, null));
     }
 
     @Override
     public Optional<EventHandler> findEventHandler(Class<?> messagePayloadClass) {
-        return Optional.ofNullable(eventHandlers.get(messagePayloadClass));
+        return Optional.ofNullable(eventHandlers.getOrDefault(messagePayloadClass, null));
     }
 
     @Override
     public Optional<EventSourcingHandler> findEventSourcingHandler(Class<?> messagePayloadClass) {
-        return Optional.ofNullable(eventSourcingHandlers.get(messagePayloadClass));
+        return Optional.ofNullable(eventSourcingHandlers.getOrDefault(messagePayloadClass, null));
     }
 
     @Override
     public Optional<QueryHandler> findQueryHandler(Class<?> messagePayloadClass) {
-        return Optional.ofNullable(queryHandlers.get(messagePayloadClass));
+        return Optional.ofNullable(queryHandlers.getOrDefault(messagePayloadClass, null));
     }
 }

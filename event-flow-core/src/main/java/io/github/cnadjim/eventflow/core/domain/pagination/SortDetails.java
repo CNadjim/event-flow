@@ -1,7 +1,14 @@
 package io.github.cnadjim.eventflow.core.domain.pagination;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
+
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static java.util.Objects.isNull;
 
 /**
  * Interface representing sorting details for query results.
@@ -24,5 +31,20 @@ public interface SortDetails {
      */
     static SortDetails unSorted() {
         return new DefaultSortDetails(Collections.emptyList());
+    }
+
+    static SortDetails by(List<Order> orders) {
+        if (isNull(orders)) throw new BadArgumentException("Orders must not be null");
+        return new DefaultSortDetails(orders);
+    }
+
+    static SortDetails by(Order.Direction direction, String... fields) {
+        if (isNull(direction)) throw new BadArgumentException("Direction must not be null");
+        if (isNull(fields)) throw new BadArgumentException("Properties must not be null");
+        if (fields.length < 1) throw new BadArgumentException("At least one field must be given");
+        final List<Order> orders = Arrays.stream(fields)
+                .map(field -> new DefaultOrder(field, direction))
+                .collect(Collectors.toList());
+        return SortDetails.by(orders);
     }
 }

@@ -26,6 +26,14 @@
         </developer>
     </developers>
 
+    <distributionManagement>
+        <repository>
+            <id>github</id>
+            <name>GitHub CNadjim Apache Maven Packages</name>
+            <url>https://maven.pkg.github.com/CNadjim/event-flow</url>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <kafka.version>3.9.0</kafka.version>
         <spring.kafka.version>3.3.4</spring.kafka.version>
@@ -37,5 +45,35 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>io.github.cnadjim</groupId>
+                <artifactId>event-flow-annotation</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.cnadjim</groupId>
+                <artifactId>event-flow-core</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.cnadjim</groupId>
+                <artifactId>event-flow-spring-boot-mongo-starter</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.cnadjim</groupId>
+                <artifactId>event-flow-spring-boot-rabbitmq-starter</artifactId>
+                <version>1.0</version>
+            </dependency>
+            <dependency>
+                <groupId>io.github.cnadjim</groupId>
+                <artifactId>event-flow-spring-boot-starter</artifactId>
+                <version>1.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
 
 </project>

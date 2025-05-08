@@ -2,6 +2,7 @@ package io.github.cnadjim.eventflow.spring.starter.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.github.cnadjim.eventflow.spring.starter.jackson.InstantDeserializer;
 import io.github.cnadjim.eventflow.spring.starter.jackson.InstantSerializer;
@@ -38,6 +39,7 @@ public class JacksonConfig {
     public ObjectMapper objectMapper() {
         final ObjectMapper objectMapper = new ObjectMapper();
         objectMapper.registerModule(new JavaTimeModule());
+        objectMapper.registerModule(new Jdk8Module());
 
         objectMapper.disable(FAIL_ON_EMPTY_BEANS);
         objectMapper.disable(WRITE_DATES_AS_TIMESTAMPS);

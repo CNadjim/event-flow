@@ -1,6 +1,6 @@
 package io.github.cnadjim.customer;
 
-import io.github.cnadjim.eventflow.annotation.HandleEvent;
+import io.github.cnadjim.eventflow.annotation.EventHandler;
 
 public class CustomerEventHandler {
 
@@ -10,16 +10,16 @@ public class CustomerEventHandler {
         this.injectDependency = injectDependency;
     }
 
-    @HandleEvent
+    @EventHandler
     public void on(CustomerEvent.CustomerCreatedEvent customerCreatedEvent) {
         String string = injectDependency.toString();
     }
 
-    @HandleEvent
+    @EventHandler
     public void on(CustomerEvent.CustomerNameUpdatedEvent customerNameUpdatedEvent) {
     }
 
-    @HandleEvent
+    @EventHandler
     public void on(CustomerEvent.CustomerBirthdayUpdatedEvent customerBirthdayUpdatedEvent) {
         throw new RuntimeException("exception");
     }

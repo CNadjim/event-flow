@@ -2,9 +2,11 @@ package io.github.cnadjim.customer;
 
 import io.github.cnadjim.customer.CustomerEvent.CustomerBirthdayUpdatedEvent;
 import io.github.cnadjim.eventflow.annotation.Aggregate;
-import io.github.cnadjim.eventflow.annotation.AggregateId;
-import io.github.cnadjim.eventflow.annotation.ApplyEvent;
-import io.github.cnadjim.eventflow.annotation.HandleCommand;
+import io.github.cnadjim.eventflow.annotation.AggregateIdentifier;
+import io.github.cnadjim.eventflow.annotation.EventSourcingHandler;
+import io.github.cnadjim.eventflow.annotation.CommandHandler;
+import io.github.cnadjim.eventflow.core.domain.exception.ConflictException;
+import io.github.cnadjim.eventflow.core.domain.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
@@ -25,32 +27,32 @@ import static java.util.Objects.nonNull;
 @Aggregate(threshold = 50)
 public class CustomerAggregate {
 
-    @AggregateId
+    @AggregateIdentifier
     private String id;
     private String name;
     private Boolean enabled;
     private LocalDate birthday;
 
-    @HandleCommand
+    @CommandHandler
     public CustomerEvent handle(CreateCustomerCommand createCustomerCommand) {
         return new CustomerCreatedEvent(createCustomerCommand.id(), createCustomerCommand.name());
     }
 
-    @HandleCommand
+    @CommandHandler
     public CustomerEvent handle(UpdateCustomerNameCommand updateCustomerNameCommand) {
         return new CustomerNameUpdatedEvent(updateCustomerNameCommand.id(), updateCustomerNameCommand.newName());
     }
 
 
-    @HandleCommand
+    @CommandHandler
     public CustomerEvent handle(CustomerCommand.UpdateCustomerBirthdayCommand updateCustomerBirthdayCommand) {
         return new CustomerBirthdayUpdatedEvent(updateCustomerBirthdayCommand.id(), updateCustomerBirthdayCommand.newBirthDay());
     }
 
-    @ApplyEvent
+    @EventSourcingHandler
     public CustomerAggregate apply(CustomerCreatedEvent event, CustomerAggregate aggregate) {
         if (nonNull(aggregate)) {
-            throw new RuntimeException("Customer already exists for id " + event.id());
+            throw new ConflictException("Customer already exists for id " + event.id());
         }
 
         return CustomerAggregate.builder()
@@ -59,10 +61,10 @@ public class CustomerAggregate {
                 .build();
     }
 
-    @ApplyEvent
+    @EventSourcingHandler
     public CustomerAggregate apply(CustomerNameUpdatedEvent event, CustomerAggregate aggregate) {
         if (isNull(aggregate)) {
-            throw new RuntimeException("Customer does not exist for id " + event.id());
+            throw new ResourceNotFoundException("Customer does not exist for id " + event.id());
         }
 
         return aggregate.toBuilder()
@@ -70,10 +72,10 @@ public class CustomerAggregate {
                 .build();
     }
 
-    @ApplyEvent
+    @EventSourcingHandler
     public CustomerAggregate apply(CustomerBirthdayUpdatedEvent event, CustomerAggregate aggregate) {
         if (isNull(aggregate)) {
-            throw new RuntimeException("Customer does not exist for id " + event.id());
+            throw new ResourceNotFoundException("Customer does not exist for id " + event.id());
         }
         return aggregate.toBuilder()
                 .birthday(event.newBirthDay())

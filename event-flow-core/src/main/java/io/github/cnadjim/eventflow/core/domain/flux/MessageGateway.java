@@ -2,6 +2,7 @@ package io.github.cnadjim.eventflow.core.domain.flux;
 
 import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowException;
+import io.github.cnadjim.eventflow.core.domain.exception.RequestTimeoutException;
 import io.github.cnadjim.eventflow.core.domain.log.Logger;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.domain.message.MessageResult;
@@ -11,7 +12,11 @@ import io.github.cnadjim.eventflow.core.domain.topic.Topic;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import static java.util.Objects.nonNull;
+
 public interface MessageGateway<MESSAGE extends Message> extends MessagePublisher, MessageConverter<MessageResult>, Logger {
+
+    Integer TIMEOUT_IN_SECOND = 30;
 
     @Override
     default MessageResult convert(Message message) {
@@ -53,6 +58,27 @@ public interface MessageGateway<MESSAGE extends Message> extends MessagePublishe
         return subscribeToResult(message);
     }
 
+    static <T> CompletableFuture<T> withRequestTimeOutException(CompletableFuture<T> future) {
+
+        CompletableFuture<T> timeoutFuture = new CompletableFuture<>();
+
+        CompletableFuture.delayedExecutor(TIMEOUT_IN_SECOND, TimeUnit.SECONDS).execute(() -> {
+            if (!future.isDone()) {
+                timeoutFuture.completeExceptionally(new RequestTimeoutException(String.format("The %s second timeout has expired without result.", TIMEOUT_IN_SECOND)));
+            }
+        });
+
+        future.whenComplete((result, exception) -> {
+            if (nonNull(exception)) {
+                timeoutFuture.completeExceptionally(exception);
+            } else {
+                timeoutFuture.complete(result);
+            }
+        });
+
+        return timeoutFuture;
+    }
+
     default CompletableFuture<MessageResult> subscribeToResult(MESSAGE message) {
         final Topic topic = message.topic();
         final CompletableFuture<MessageResult> completableFuture = new CompletableFuture<>();
@@ -61,6 +87,6 @@ public interface MessageGateway<MESSAGE extends Message> extends MessagePublishe
                 (nextMessage) -> consumeNextMessage(message, nextMessage, completableFuture),
                 (subscription) -> completableFuture.whenCompleteAsync((result, error) -> subscription.unsubscribe()));
         subscribe(messageSubscriber);
-        return completableFuture.orTimeout(30, TimeUnit.SECONDS);
+        return withRequestTimeOutException(completableFuture);
     }
 }

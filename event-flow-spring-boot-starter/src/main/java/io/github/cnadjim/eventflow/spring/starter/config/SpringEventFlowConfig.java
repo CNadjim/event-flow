@@ -53,7 +53,6 @@ public class SpringEventFlowConfig {
         return new InMemoryTopicRegistry();
     }
 
-
     @Bean
     @Primary
     public TopicService topicService(TopicRegistry topicRegistry) {
@@ -77,30 +76,30 @@ public class SpringEventFlowConfig {
 
     @Bean
     @Primary
-    public EventDispatcher eventDispatcher(final ErrorConverter errorConverter,
-                                           final MessageBus messageBus,
+    public EventDispatcher eventDispatcher(final MessageBus messageBus,
+                                           final ErrorConverter errorConverter,
                                            final HandlerRegistry handlerRegistry) {
         return new EventDispatcher(messageBus, errorConverter, handlerRegistry);
     }
 
     @Bean
     @Primary
-    public QueryDispatcher queryDispatcher(final ErrorConverter errorConverter, final MessageBus messageBus,
+    public QueryDispatcher queryDispatcher(final MessageBus messageBus,
+                                           final ErrorConverter errorConverter,
                                            final HandlerRegistry handlerRegistry) {
         return new QueryDispatcher(messageBus, errorConverter, handlerRegistry);
     }
 
     @Bean
     @Primary
-    public CommandDispatcher commandDispatcher(final ErrorConverter errorConverter, final MessageBus messageBus,
-                                               final EventStore eventStore,
+    public CommandDispatcher commandDispatcher(final MessageBus messageBus,
+                                               final ErrorConverter errorConverter,
                                                final HandlerRegistry handlerRegistry,
                                                final AggregateService aggregateService) {
         return new CommandDispatcher(messageBus, errorConverter, handlerRegistry, aggregateService);
     }
 
     @Bean
-
     @Primary
     public HandlerService handlerService(final TopicService topicService,
                                          final HandlerRegistry handlerRegistry,

@@ -70,11 +70,11 @@ public interface ErrorConverter {
 
         final Throwable rootCause = ExceptionUtils.getRootCause(throwable);
 
-        if (throwable instanceof EventFlowException eventFlowException) {
+        if (nonNull(rootCause) && rootCause instanceof EventFlowException eventFlowException) {
             if (eventFlowException.hasError()) {
                 return eventFlowException.getError();
             }
-        } else if (nonNull(rootCause) && rootCause instanceof EventFlowException eventFlowException) {
+        } else if (throwable instanceof EventFlowException eventFlowException) {
             if (eventFlowException.hasError()) {
                 return eventFlowException.getError();
             }

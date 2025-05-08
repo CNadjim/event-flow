@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.sample.domain.account.handler;
 
-import io.github.cnadjim.eventflow.annotation.HandleEvent;
+import io.github.cnadjim.eventflow.annotation.EventHandler;
 import io.github.cnadjim.eventflow.sample.domain.account.entity.MongoAccountEntity;
 import io.github.cnadjim.eventflow.sample.domain.account.event.AccountBirthDateUpdatedEvent;
 import io.github.cnadjim.eventflow.sample.domain.account.event.AccountCreatedEvent;
@@ -20,7 +20,7 @@ public class AccountEventHandler {
 
     private final MongoAccountRepository mongoAccountRepository;
 
-    @HandleEvent
+    @EventHandler
     @Transactional
     public void handle(AccountCreatedEvent event) {
         log.info("Account created: {}", event);
@@ -34,7 +34,7 @@ public class AccountEventHandler {
         mongoAccountRepository.save(mongoAccountEntity);
     }
 
-    @HandleEvent
+    @EventHandler
     @Transactional
     public void handle(AccountPseudonymUpdatedEvent event) {
         log.info("Account pseudonym updated: {}", event);
@@ -43,7 +43,7 @@ public class AccountEventHandler {
         mongoAccountRepository.save(account);
     }
 
-    @HandleEvent
+    @EventHandler
     @Transactional
     public void handle(AccountBirthDateUpdatedEvent event) {
         log.info("Account birth date updated: {}", event);
@@ -52,7 +52,7 @@ public class AccountEventHandler {
         mongoAccountRepository.save(account);
     }
 
-    @HandleEvent
+    @EventHandler
     @Transactional
     public void handle(AccountDeletedEvent event) {
         log.info("Account deleted: {}", event);

@@ -29,5 +29,4 @@ public class SpringHandlerRegister implements BeanPostProcessor {
         handlers.forEach(handlerService::register);
         return bean;
     }
-
 }

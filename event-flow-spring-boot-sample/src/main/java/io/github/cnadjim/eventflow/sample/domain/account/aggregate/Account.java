@@ -1,9 +1,9 @@
 package io.github.cnadjim.eventflow.sample.domain.account.aggregate;
 
 import io.github.cnadjim.eventflow.annotation.Aggregate;
-import io.github.cnadjim.eventflow.annotation.AggregateId;
-import io.github.cnadjim.eventflow.annotation.ApplyEvent;
-import io.github.cnadjim.eventflow.annotation.HandleCommand;
+import io.github.cnadjim.eventflow.annotation.AggregateIdentifier;
+import io.github.cnadjim.eventflow.annotation.EventSourcingHandler;
+import io.github.cnadjim.eventflow.annotation.CommandHandler;
 import io.github.cnadjim.eventflow.sample.domain.account.command.CreateAccountCommand;
 import io.github.cnadjim.eventflow.sample.domain.account.command.DeleteAccountCommand;
 import io.github.cnadjim.eventflow.sample.domain.account.command.UpdateAccountBirthDateCommand;
@@ -26,34 +26,33 @@ import static java.util.Objects.nonNull;
 @Builder(toBuilder = true)
 public class Account {
 
-    @AggregateId
+    @AggregateIdentifier
     private String email;
     private String password;
     private String pseudonym;
     private LocalDate birthDate;
 
-    @HandleCommand
+    @CommandHandler
     public AccountEvent handle(CreateAccountCommand command) {
         return new AccountCreatedEvent(command.email(), command.password(), command.pseudonym(), command.birthDate());
     }
 
-    @HandleCommand
+    @CommandHandler
     public AccountEvent handle(UpdateAccountPseudonymCommand command) {
         return new AccountPseudonymUpdatedEvent(command.email(), command.newPseudonym());
     }
 
-    @HandleCommand
+    @CommandHandler
     public AccountEvent handle(UpdateAccountBirthDateCommand command) {
         return new AccountBirthDateUpdatedEvent(command.email(), command.newBirthDate());
     }
 
-
-    @HandleCommand
+    @CommandHandler
     public AccountEvent handle(DeleteAccountCommand command) {
         return new AccountDeletedEvent(command.email());
     }
 
-    @ApplyEvent
+    @EventSourcingHandler
     public Account applyEvent(AccountDeletedEvent event, Account account) {
         if (isNull(account)) {
             throw new AccountNotFoundException(event.email());
@@ -62,7 +61,7 @@ public class Account {
         return null;
     }
 
-    @ApplyEvent
+    @EventSourcingHandler
     public Account applyEvent(AccountPseudonymUpdatedEvent event, Account account) {
         if (isNull(account)) {
             throw new AccountNotFoundException(event.email());
@@ -73,7 +72,7 @@ public class Account {
                 .build();
     }
 
-    @ApplyEvent
+    @EventSourcingHandler
     public Account applyEvent(AccountBirthDateUpdatedEvent event, Account account) {
         if (isNull(account)) {
             throw new AccountNotFoundException(event.email());
@@ -84,7 +83,7 @@ public class Account {
                 .build();
     }
 
-    @ApplyEvent
+    @EventSourcingHandler
     public Account applyEvent(AccountCreatedEvent event, Account account) {
         if (nonNull(account)) {
             throw new AccountAlreadyExistException(event.email());

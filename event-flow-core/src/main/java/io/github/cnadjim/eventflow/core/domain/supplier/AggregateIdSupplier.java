@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.core.domain.supplier;
 
-import io.github.cnadjim.eventflow.annotation.AggregateId;
+import io.github.cnadjim.eventflow.annotation.AggregateIdentifier;
 
 import java.lang.reflect.Field;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public interface AggregateIdSupplier {
 
     /**
      * Extracts the aggregate ID from the given payload object.
-     * This method looks for fields annotated with {@link AggregateId} in the payload.
+     * This method looks for fields annotated with {@link AggregateIdentifier} in the payload.
      *
      * @param payload The object from which to extract the aggregate ID
      * @return The aggregate ID if found, or null if not found
@@ -44,7 +44,7 @@ public interface AggregateIdSupplier {
 
     /**
      * Finds the aggregate ID in the given payload object.
-     * This method searches for fields annotated with {@link AggregateId} in the payload
+     * This method searches for fields annotated with {@link AggregateIdentifier} in the payload
      * and returns the value of the first such field found.
      *
      * @param payload The object in which to search for the aggregate ID
@@ -60,7 +60,7 @@ public interface AggregateIdSupplier {
         final Class<?> payloadClass = payload.getClass();
 
         for (Field field : payloadClass.getDeclaredFields()) {
-            if (field.isAnnotationPresent(AggregateId.class)) {
+            if (field.isAnnotationPresent(AggregateIdentifier.class)) {
                 field.setAccessible(true);
                 try {
                     Object value = field.get(payload);

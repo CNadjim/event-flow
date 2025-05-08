@@ -1,9 +1,9 @@
 package io.github.cnadjim.eventflow.sample.domain.account.command;
 
-import io.github.cnadjim.eventflow.annotation.AggregateId;
-import io.github.cnadjim.eventflow.sample.dto.request.UpdateAccountPseudonymRequest;
+import io.github.cnadjim.eventflow.annotation.AggregateIdentifier;
+import io.github.cnadjim.eventflow.sample.model.request.UpdateAccountPseudonymRequest;
 
-public record UpdateAccountPseudonymCommand(@AggregateId String email, String newPseudonym) implements AccountCommand {
+public record UpdateAccountPseudonymCommand(@AggregateIdentifier String email, String newPseudonym) implements AccountCommand {
 
 
 

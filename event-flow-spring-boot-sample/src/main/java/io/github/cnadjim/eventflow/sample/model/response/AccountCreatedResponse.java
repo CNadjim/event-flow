@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.sample.dto.response;
+package io.github.cnadjim.eventflow.sample.model.response;
 
 public record AccountCreatedResponse(String message) implements MessageResponse {
 
