@@ -6,8 +6,6 @@ springdoc:
     use-root-path: true
 
 spring:
-  profiles:
-    active: rabbitmq
   application:
     name: sample-application
   kafka:

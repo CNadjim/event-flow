@@ -21,12 +21,12 @@ public class RabbitMqSubscriberConsumer implements Runnable, ChannelAwareMessage
     private final SimpleMessageListenerContainer simpleMessageListenerContainer;
     private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
-    public RabbitMqSubscriberConsumer(MessageSubscriber subscriber, RabbitTemplate rabbitTemplate) {
+    public RabbitMqSubscriberConsumer(MessageSubscriber subscriber, RabbitTemplate rabbitTemplate, String queueName) {
         this.subscriber = subscriber;
         this.rabbitTemplate = rabbitTemplate;
         this.simpleMessageListenerContainer = new SimpleMessageListenerContainer();
         simpleMessageListenerContainer.setConnectionFactory(rabbitTemplate.getConnectionFactory());
-        simpleMessageListenerContainer.setQueueNames(subscriber.topic().name());
+        simpleMessageListenerContainer.setQueueNames(queueName);
         simpleMessageListenerContainer.setAcknowledgeMode(AcknowledgeMode.MANUAL);
         simpleMessageListenerContainer.setMessageListener(this);
         executorService.submit(this);

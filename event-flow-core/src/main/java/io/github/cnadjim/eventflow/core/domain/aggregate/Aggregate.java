@@ -65,7 +65,7 @@ public record Aggregate(Long version,
      * @return A new Aggregate with the next version and the specified payload
      */
     public Aggregate nextVersion(Object payload) {
-        return new Aggregate(version + 1, payload);
+        return new Aggregate(version + 1, payload, aggregateId);
     }
 
     /**

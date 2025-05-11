@@ -5,7 +5,6 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 
 
-@Profile("rabbitmq")
 @AutoConfiguration
 @ComponentScan(basePackageClasses = EventFlowRabbitMqAutoConfiguration.class)
 public class EventFlowRabbitMqAutoConfiguration {
