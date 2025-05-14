@@ -24,12 +24,17 @@ public interface MessageGateway<MESSAGE extends Message> extends MessagePublishe
     }
 
     default void onReceived(MESSAGE message) {
-        logger().debug("[ {} ] Received {} {}", message.id(), message.getClass().getSimpleName(), message.payloadClassSimpleName());
+        logger().debug("[ {} ] [ {} ] Requested", message.id(), message.payloadClassSimpleName());
     }
 
     default void onResultReceived(MESSAGE message) {
-        logger().debug("[ {} ] Received {} {} result", message.id(), message.getClass().getSimpleName(), message.payloadClassSimpleName());
+        logger().debug("[ {} ] [ {} ] Responded", message.id(), message.payloadClassSimpleName());
     }
+
+    default void onResultTimeout(MESSAGE message) {
+        logger().debug("[ {} ] [ {} ] Timed out", message.id(), message.payloadClassSimpleName());
+    }
+
 
     default boolean consumeNextMessage(MESSAGE message, Message nextMessage, CompletableFuture<MessageResult> completableFuture) {
         if (nextMessage.id().equals(message.id())) {
@@ -47,7 +52,6 @@ public interface MessageGateway<MESSAGE extends Message> extends MessagePublishe
 
             return true;
         } else {
-            logger().debug("[ {} ] Ignoring {} {}", nextMessage.id(), nextMessage.getClass().getSimpleName(), nextMessage.payloadClassSimpleName());
             return false;
         }
     }
@@ -58,13 +62,15 @@ public interface MessageGateway<MESSAGE extends Message> extends MessagePublishe
         return subscribeToResult(message);
     }
 
-    static <T> CompletableFuture<T> withRequestTimeOutException(CompletableFuture<T> future) {
+    default  <T> CompletableFuture<T> withRequestTimeOutException(CompletableFuture<T> future, MESSAGE message) {
 
         CompletableFuture<T> timeoutFuture = new CompletableFuture<>();
 
         CompletableFuture.delayedExecutor(TIMEOUT_IN_SECOND, TimeUnit.SECONDS).execute(() -> {
             if (!future.isDone()) {
-                timeoutFuture.completeExceptionally(new RequestTimeoutException(String.format("The %s second timeout has expired without result.", TIMEOUT_IN_SECOND)));
+                onResultTimeout(message);
+                final RequestTimeoutException requestTimeoutException = new RequestTimeoutException(String.format("The %s second timeout has expired without result.", TIMEOUT_IN_SECOND));
+                timeoutFuture.completeExceptionally(requestTimeoutException);
             }
         });
 
@@ -87,6 +93,6 @@ public interface MessageGateway<MESSAGE extends Message> extends MessagePublishe
                 (nextMessage) -> consumeNextMessage(message, nextMessage, completableFuture),
                 (subscription) -> completableFuture.whenCompleteAsync((result, error) -> subscription.unsubscribe()));
         subscribe(messageSubscriber);
-        return withRequestTimeOutException(completableFuture);
+        return withRequestTimeOutException(completableFuture, message);
     }
 }

@@ -7,9 +7,9 @@ import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.handler.QueryHandler;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.domain.message.Query;
-import io.github.cnadjim.eventflow.core.spi.ErrorConverter;
-import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
-import io.github.cnadjim.eventflow.core.spi.MessageBus;
+import io.github.cnadjim.eventflow.core.port.ErrorConverter;
+import io.github.cnadjim.eventflow.core.port.HandlerRegistry;
+import io.github.cnadjim.eventflow.core.port.MessageBus;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j

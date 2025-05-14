@@ -2,7 +2,7 @@ package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
 import io.github.cnadjim.eventflow.core.domain.topic.Topic;
-import io.github.cnadjim.eventflow.core.spi.TopicRegistry;
+import io.github.cnadjim.eventflow.core.port.TopicRegistry;
 
 import java.util.Collection;
 import java.util.concurrent.CopyOnWriteArraySet;

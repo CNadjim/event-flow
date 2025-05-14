@@ -16,4 +16,7 @@ public interface CustomerEvent {
     record CustomerBirthdayUpdatedEvent(@AggregateIdentifier String id, LocalDate newBirthDay) implements CustomerEvent {
     }
 
+    record CustomerDeletedEvent(@AggregateIdentifier String id) implements CustomerEvent {
+    }
+
 }

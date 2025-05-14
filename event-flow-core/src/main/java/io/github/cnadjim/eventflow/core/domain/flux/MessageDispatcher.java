@@ -19,15 +19,15 @@ public interface MessageDispatcher<MESSAGE extends Message, DISPATCH_RESULT> ext
     Error convert(Throwable exception);
 
     default void onDispatchStart(Message message) {
-        logger().debug("[ {} ] Dispatching {} {}", message.id(), message.getClass().getSimpleName(), message.payloadClassSimpleName());
+        logger().debug("[ {} ] [ {} ] Dispatching requested", message.id(), message.payloadClassSimpleName());
     }
 
     default void onDispatchSuccess(Message message) {
-        logger().debug("[ {} ] Dispatching {} {} finished successfully", message.id(), message.getClass().getSimpleName(), message.payloadClassSimpleName());
+        logger().debug("[ {} ] [ {} ] Dispatched with success", message.id(), message.payloadClassSimpleName());
     }
 
     default void onDispatchError(Message message, Error error) {
-        logger().debug("[ {} ] Dispatching {} {} finished with error : '{}'", message.id(), message.getClass().getSimpleName(), message.payloadClassSimpleName(), error.message());
+        logger().debug("[ {} ] [ {} ] Dispatched with error : {}", message.id(), message.payloadClassSimpleName(), error.message());
     }
 
     default boolean convertAndDispatch(Message message) {

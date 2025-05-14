@@ -24,13 +24,11 @@ public class AccountEventHandler {
     @Transactional
     public void handle(AccountCreatedEvent event) {
         log.info("Account created: {}", event);
-
         final MongoAccountEntity mongoAccountEntity = new MongoAccountEntity();
         mongoAccountEntity.setEmail(event.email());
         mongoAccountEntity.setPassword(event.password());
         mongoAccountEntity.setBirthDate(event.birthDate());
         mongoAccountEntity.setPseudonym(event.pseudonym());
-
         mongoAccountRepository.save(mongoAccountEntity);
     }
 

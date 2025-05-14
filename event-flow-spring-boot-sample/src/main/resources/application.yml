@@ -8,8 +8,6 @@ springdoc:
 spring:
   application:
     name: sample-application
-  kafka:
-    bootstrap-servers: localhost:9092
   rabbitmq:
     username: root
     password: root

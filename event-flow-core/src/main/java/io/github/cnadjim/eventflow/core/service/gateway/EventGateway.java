@@ -1,14 +1,12 @@
 package io.github.cnadjim.eventflow.core.service.gateway;
 
 import io.github.cnadjim.eventflow.annotation.DomainService;
-import io.github.cnadjim.eventflow.core.api.SendEvent;
-import io.github.cnadjim.eventflow.core.domain.error.Error;
+import io.github.cnadjim.eventflow.core.usecase.SendEvent;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageGateway;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
-import io.github.cnadjim.eventflow.core.domain.message.Query;
-import io.github.cnadjim.eventflow.core.spi.MessageBus;
+import io.github.cnadjim.eventflow.core.port.MessageBus;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.concurrent.CompletableFuture;

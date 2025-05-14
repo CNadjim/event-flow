@@ -3,6 +3,7 @@ package io.github.cnadjim.eventflow.core.api;
 import io.github.cnadjim.eventflow.core.domain.handler.CommandHandler;
 import io.github.cnadjim.eventflow.core.domain.handler.EventHandler;
 import io.github.cnadjim.eventflow.core.domain.handler.Handler;
+import io.github.cnadjim.eventflow.core.usecase.ScanObject;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;

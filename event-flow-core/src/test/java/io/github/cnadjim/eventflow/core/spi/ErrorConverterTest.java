@@ -5,6 +5,7 @@ import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.error.InternalServerError;
 import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowException;
+import io.github.cnadjim.eventflow.core.port.ErrorConverter;
 import io.github.cnadjim.eventflow.core.stub.DefaultErrorConverter;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

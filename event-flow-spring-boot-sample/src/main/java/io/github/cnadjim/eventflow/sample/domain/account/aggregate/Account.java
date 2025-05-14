@@ -4,6 +4,7 @@ import io.github.cnadjim.eventflow.annotation.Aggregate;
 import io.github.cnadjim.eventflow.annotation.AggregateIdentifier;
 import io.github.cnadjim.eventflow.annotation.EventSourcingHandler;
 import io.github.cnadjim.eventflow.annotation.CommandHandler;
+import io.github.cnadjim.eventflow.core.domain.aggregate.AggregateLifecycle;
 import io.github.cnadjim.eventflow.sample.domain.account.command.CreateAccountCommand;
 import io.github.cnadjim.eventflow.sample.domain.account.command.DeleteAccountCommand;
 import io.github.cnadjim.eventflow.sample.domain.account.command.UpdateAccountBirthDateCommand;
@@ -14,6 +15,7 @@ import io.github.cnadjim.eventflow.sample.domain.account.exception.AccountNotFou
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.NoArgsConstructor;
+import org.apache.commons.lang3.StringUtils;
 
 import java.time.LocalDate;
 
@@ -34,66 +36,58 @@ public class Account {
 
     @CommandHandler
     public AccountEvent handle(CreateAccountCommand command) {
+        if (StringUtils.isNotBlank(email)) {
+            throw new AccountAlreadyExistException(command.email());
+        }
+
         return new AccountCreatedEvent(command.email(), command.password(), command.pseudonym(), command.birthDate());
     }
 
     @CommandHandler
     public AccountEvent handle(UpdateAccountPseudonymCommand command) {
+        if (StringUtils.isBlank(email)) {
+            throw new AccountNotFoundException(command.email());
+        }
         return new AccountPseudonymUpdatedEvent(command.email(), command.newPseudonym());
     }
 
     @CommandHandler
     public AccountEvent handle(UpdateAccountBirthDateCommand command) {
+        if (StringUtils.isBlank(email)) {
+            throw new AccountNotFoundException(command.email());
+        }
         return new AccountBirthDateUpdatedEvent(command.email(), command.newBirthDate());
     }
 
     @CommandHandler
     public AccountEvent handle(DeleteAccountCommand command) {
+        if (StringUtils.isBlank(email)) {
+            throw new AccountNotFoundException(command.email());
+        }
+
         return new AccountDeletedEvent(command.email());
     }
 
     @EventSourcingHandler
-    public Account applyEvent(AccountDeletedEvent event, Account account) {
-        if (isNull(account)) {
-            throw new AccountNotFoundException(event.email());
-        }
-
-        return null;
+    public void applyEvent(AccountDeletedEvent event) {
+        AggregateLifecycle.markDeleted();
     }
 
     @EventSourcingHandler
-    public Account applyEvent(AccountPseudonymUpdatedEvent event, Account account) {
-        if (isNull(account)) {
-            throw new AccountNotFoundException(event.email());
-        }
-
-        return account.toBuilder()
-                .pseudonym(event.newPseudonym())
-                .build();
+    public void applyEvent(AccountPseudonymUpdatedEvent event) {
+        pseudonym = event.newPseudonym();
     }
 
     @EventSourcingHandler
-    public Account applyEvent(AccountBirthDateUpdatedEvent event, Account account) {
-        if (isNull(account)) {
-            throw new AccountNotFoundException(event.email());
-        }
-
-        return account.toBuilder()
-                .birthDate(event.newBirthDate())
-                .build();
+    public void applyEvent(AccountBirthDateUpdatedEvent event) {
+        birthDate = event.newBirthDate();
     }
 
     @EventSourcingHandler
-    public Account applyEvent(AccountCreatedEvent event, Account account) {
-        if (nonNull(account)) {
-            throw new AccountAlreadyExistException(event.email());
-        }
-
-        return Account.builder()
-                .email(event.email())
-                .password(event.password())
-                .pseudonym(event.pseudonym())
-                .birthDate(event.birthDate())
-                .build();
+    public void applyEvent(AccountCreatedEvent event) {
+        email = event.email();
+        password = event.password();
+        pseudonym = event.pseudonym();
+        birthDate = event.birthDate();
     }
 }

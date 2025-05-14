@@ -10,9 +10,9 @@ import io.github.cnadjim.eventflow.core.domain.message.Command;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.service.AggregateService;
-import io.github.cnadjim.eventflow.core.spi.ErrorConverter;
-import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
-import io.github.cnadjim.eventflow.core.spi.MessageBus;
+import io.github.cnadjim.eventflow.core.port.ErrorConverter;
+import io.github.cnadjim.eventflow.core.port.HandlerRegistry;
+import io.github.cnadjim.eventflow.core.port.MessageBus;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.Collection;
@@ -60,13 +60,15 @@ public class CommandDispatcher implements MessageDispatcher<Command, String> {
 
         final CommandHandler commandHandler = handlerRegistry.getCommandHandler(message.payloadClass());
 
-        final Collection<Event> events = commandHandler.handle(message);
+        final Aggregate initialAggregateState = new Aggregate(0L, commandHandler.aggregateInstance(), aggregateId);
 
-        final Aggregate aggregate = aggregateService.loadAggregateState(aggregateId, events);
+        final Aggregate currentAggregateState = aggregateService.loadAggregate(initialAggregateState);
 
-        log.debug("Aggregate {} - Final Aggregate state: {}", aggregateId, aggregate);
+        final Event event = commandHandler.handle(message, currentAggregateState);
 
-        events.forEach(messageBus::publish);
+        aggregateService.applyNewEvent(currentAggregateState, event);
+
+        messageBus.publish(event);
 
         return aggregateId;
     }

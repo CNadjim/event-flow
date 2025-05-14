@@ -1,11 +1,11 @@
 package io.github.cnadjim.eventflow.core.service;
 
 import io.github.cnadjim.eventflow.annotation.DomainService;
-import io.github.cnadjim.eventflow.core.api.FindTopics;
+import io.github.cnadjim.eventflow.core.usecase.FindTopics;
 import io.github.cnadjim.eventflow.core.domain.topic.MessageResultTopic;
 import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import io.github.cnadjim.eventflow.core.domain.topic.Topic;
-import io.github.cnadjim.eventflow.core.spi.TopicRegistry;
+import io.github.cnadjim.eventflow.core.port.TopicRegistry;
 
 import java.util.Collection;
 

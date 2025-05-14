@@ -58,17 +58,6 @@ public record Aggregate(Long version,
     }
 
     /**
-     * Creates a new Aggregate with an incremented version and the specified payload.
-     * This method is used when updating an aggregate.
-     *
-     * @param payload The new payload for the aggregate
-     * @return A new Aggregate with the next version and the specified payload
-     */
-    public Aggregate nextVersion(Object payload) {
-        return new Aggregate(version + 1, payload, aggregateId);
-    }
-
-    /**
      * Returns the snapshot threshold for this aggregate.
      * The threshold determines how many events should be processed before creating a snapshot.
      *

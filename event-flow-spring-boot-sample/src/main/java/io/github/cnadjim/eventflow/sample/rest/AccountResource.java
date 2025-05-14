@@ -1,8 +1,8 @@
 package io.github.cnadjim.eventflow.sample.rest;
 
 
-import io.github.cnadjim.eventflow.core.api.SendCommand;
-import io.github.cnadjim.eventflow.core.api.SendQuery;
+import io.github.cnadjim.eventflow.core.usecase.SendCommand;
+import io.github.cnadjim.eventflow.core.usecase.SendQuery;
 import io.github.cnadjim.eventflow.core.domain.pagination.Page;
 import io.github.cnadjim.eventflow.core.domain.response.ResponseType;
 import io.github.cnadjim.eventflow.sample.domain.account.command.CreateAccountCommand;

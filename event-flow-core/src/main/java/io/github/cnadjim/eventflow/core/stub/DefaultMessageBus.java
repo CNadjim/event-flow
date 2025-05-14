@@ -5,7 +5,7 @@ import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.flux.Subscription;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.domain.topic.Topic;
-import io.github.cnadjim.eventflow.core.spi.MessageBus;
+import io.github.cnadjim.eventflow.core.port.MessageBus;
 import lombok.extern.slf4j.Slf4j;
 
 import java.time.Instant;

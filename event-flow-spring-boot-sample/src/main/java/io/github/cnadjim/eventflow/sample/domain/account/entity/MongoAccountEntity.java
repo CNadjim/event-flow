@@ -9,6 +9,7 @@ import java.time.LocalDate;
 @Data
 @Document(collection = "account-store")
 public class MongoAccountEntity {
+
     @Id
     private String email;
     private String password;

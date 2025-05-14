@@ -27,7 +27,7 @@ public class PageRequestAdaptor implements SpringAdaptor<Pageable, PageRequest> 
 
     @Override
     public PageRequest fromSpring(Pageable pageable) {
-        if (pageable == null || !pageable.isPaged()) {
+        if (pageable == null || pageable.isUnpaged()) {
             return PageRequest.unpaged();
         }
 

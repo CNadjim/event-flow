@@ -2,7 +2,7 @@ package io.github.cnadjim.eventflow.spring.rabbitmq.starter.spi;
 
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
-import io.github.cnadjim.eventflow.core.spi.MessageBus;
+import io.github.cnadjim.eventflow.core.port.MessageBus;
 import io.github.cnadjim.eventflow.spring.rabbitmq.starter.service.RabbitMqService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;

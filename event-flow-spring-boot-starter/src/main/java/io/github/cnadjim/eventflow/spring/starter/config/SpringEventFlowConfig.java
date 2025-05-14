@@ -1,8 +1,9 @@
 package io.github.cnadjim.eventflow.spring.starter.config;
 
-import io.github.cnadjim.eventflow.core.api.SendCommand;
-import io.github.cnadjim.eventflow.core.api.SendEvent;
-import io.github.cnadjim.eventflow.core.api.SendQuery;
+import io.github.cnadjim.eventflow.core.port.*;
+import io.github.cnadjim.eventflow.core.usecase.SendCommand;
+import io.github.cnadjim.eventflow.core.usecase.SendEvent;
+import io.github.cnadjim.eventflow.core.usecase.SendQuery;
 import io.github.cnadjim.eventflow.core.service.AggregateService;
 import io.github.cnadjim.eventflow.core.service.HandlerService;
 import io.github.cnadjim.eventflow.core.service.TopicService;
@@ -12,7 +13,6 @@ import io.github.cnadjim.eventflow.core.service.dispatcher.QueryDispatcher;
 import io.github.cnadjim.eventflow.core.service.gateway.CommandGateway;
 import io.github.cnadjim.eventflow.core.service.gateway.EventGateway;
 import io.github.cnadjim.eventflow.core.service.gateway.QueryGateway;
-import io.github.cnadjim.eventflow.core.spi.*;
 import io.github.cnadjim.eventflow.core.stub.*;
 import io.github.cnadjim.eventflow.spring.starter.exception.SpringErrorConverter;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;

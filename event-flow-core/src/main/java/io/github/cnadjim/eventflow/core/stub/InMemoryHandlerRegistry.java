@@ -3,14 +3,13 @@ package io.github.cnadjim.eventflow.core.stub;
 import io.github.cnadjim.eventflow.annotation.Stub;
 import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.handler.*;
-import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
+import io.github.cnadjim.eventflow.core.port.HandlerRegistry;
 
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 @Stub
 public class InMemoryHandlerRegistry implements HandlerRegistry {
@@ -33,7 +32,7 @@ public class InMemoryHandlerRegistry implements HandlerRegistry {
             case QueryHandler queryHandler -> queryHandlers.put(payloadClass, queryHandler);
             case EventHandler eventHandler -> eventHandlers.put(payloadClass, eventHandler);
             case EventSourcingHandler eventSourcingHandler -> eventSourcingHandlers.put(payloadClass, eventSourcingHandler);
-            default -> throw new IllegalStateException("Unexpected value: " + handler);
+            default -> throw new BadArgumentException("Unexpected value: " + handler);
         }
     }
 

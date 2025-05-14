@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomerEntity {
+
     private String id;
     private String name;
     private Boolean enabled;

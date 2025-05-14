@@ -1,10 +1,14 @@
 package io.github.cnadjim.eventflow.spring.mongo.starter.spi;
 
 import io.github.cnadjim.eventflow.core.domain.message.Event;
-import io.github.cnadjim.eventflow.core.spi.EventStore;
+import io.github.cnadjim.eventflow.core.port.EventStore;
 import io.github.cnadjim.eventflow.spring.mongo.starter.entity.MongoEventEntity;
+import io.github.cnadjim.eventflow.spring.mongo.starter.mapper.EventMapper;
 import io.github.cnadjim.eventflow.spring.mongo.starter.repository.MongoEventEntityRepository;
-import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -12,9 +16,12 @@ import java.util.Optional;
 
 public class MongoEventStore implements EventStore {
 
+    private final MongoTemplate mongoTemplate;
     private final MongoEventEntityRepository eventEntityRepository;
 
-    public MongoEventStore(MongoEventEntityRepository eventEntityRepository) {
+    public MongoEventStore(MongoTemplate mongoTemplate,
+                           MongoEventEntityRepository eventEntityRepository) {
+        this.mongoTemplate = mongoTemplate;
         this.eventEntityRepository = eventEntityRepository;
     }
 
@@ -22,7 +29,7 @@ public class MongoEventStore implements EventStore {
     @Transactional
     public void save(Event event) {
         Optional.ofNullable(event)
-                .map(MongoEventEntity::fromEvent)
+                .map(EventMapper::toEntity)
                 .ifPresent(eventEntityRepository::save);
     }
 
@@ -36,16 +43,21 @@ public class MongoEventStore implements EventStore {
     public List<Event> findAllByAggregateIdOrderByTimestampAsc(String aggregateId) {
         return eventEntityRepository.findAllByAggregateIdOrderByTimestampAsc(aggregateId)
                 .stream()
-                .map(MongoEventEntity::toEvent)
+                .map(EventMapper::toDomain)
                 .toList();
     }
 
     @Override
     @Transactional(readOnly = true)
     public List<Event> findAllByAggregateIdOrderByTimestampAscStartFrom(String aggregateId, int startFrom) {
-        return eventEntityRepository.findAllByAggregateIdOrderByTimestampAsc(aggregateId, PageRequest.of(1, startFrom))
-                .stream()
-                .map(MongoEventEntity::toEvent)
+        final Query query = new Query(Criteria.where("aggregateId").is(aggregateId))
+                .with(Sort.by(Sort.Direction.ASC, "timestamp"))
+                .skip(startFrom);
+
+        final List<MongoEventEntity> events = mongoTemplate.find(query, MongoEventEntity.class);
+
+        return events.stream()
+                .map(EventMapper::toDomain)
                 .toList();
     }
 }

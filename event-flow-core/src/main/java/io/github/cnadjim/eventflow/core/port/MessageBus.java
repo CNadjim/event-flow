@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.core.spi;
+package io.github.cnadjim.eventflow.core.port;
 
 import io.github.cnadjim.eventflow.core.domain.flux.MessagePublisher;
 

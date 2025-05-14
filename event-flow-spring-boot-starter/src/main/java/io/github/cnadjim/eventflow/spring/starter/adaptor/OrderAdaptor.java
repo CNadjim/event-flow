@@ -1,5 +1,6 @@
 package io.github.cnadjim.eventflow.spring.starter.adaptor;
 
+import io.github.cnadjim.eventflow.core.domain.exception.BadArgumentException;
 import io.github.cnadjim.eventflow.core.domain.pagination.DefaultOrder;
 import io.github.cnadjim.eventflow.core.domain.pagination.Order;
 import org.springframework.data.domain.Sort;
@@ -17,7 +18,7 @@ public class OrderAdaptor implements SpringAdaptor<Sort.Order, Order> {
         switch (order.direction()) {
             case ASC -> direction = Sort.Direction.ASC;
             case DESC -> direction = Sort.Direction.DESC;
-            default -> throw new IllegalStateException("Unexpected value: " + order.direction());
+            default -> throw new BadArgumentException("Unexpected value: " + order.direction());
         }
 
         return new Sort.Order(direction, order.field());
@@ -33,7 +34,7 @@ public class OrderAdaptor implements SpringAdaptor<Sort.Order, Order> {
         switch (springOrder.getDirection()) {
             case ASC -> direction = Order.Direction.ASC;
             case DESC -> direction = Order.Direction.DESC;
-            default -> throw new IllegalStateException("Unexpected value: " + springOrder.getDirection());
+            default -> throw new BadArgumentException("Unexpected value: " + springOrder.getDirection());
         }
 
         return new DefaultOrder(springOrder.getProperty(), direction);

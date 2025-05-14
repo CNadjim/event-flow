@@ -15,4 +15,7 @@ public interface CustomerCommand  {
 
     record UpdateCustomerBirthdayCommand(@AggregateIdentifier String id, LocalDate newBirthDay) implements CustomerCommand {
     }
+
+    record DeleteCustomerCommand(@AggregateIdentifier String id) implements CustomerCommand {
+    }
 }

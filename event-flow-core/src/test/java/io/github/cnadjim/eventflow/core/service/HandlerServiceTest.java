@@ -8,7 +8,7 @@ import io.github.cnadjim.eventflow.core.domain.topic.MessageTopic;
 import io.github.cnadjim.eventflow.core.service.dispatcher.CommandDispatcher;
 import io.github.cnadjim.eventflow.core.service.dispatcher.EventDispatcher;
 import io.github.cnadjim.eventflow.core.service.dispatcher.QueryDispatcher;
-import io.github.cnadjim.eventflow.core.spi.HandlerRegistry;
+import io.github.cnadjim.eventflow.core.port.HandlerRegistry;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

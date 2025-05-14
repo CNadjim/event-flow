@@ -14,6 +14,7 @@ import java.util.Collection;
 @Component
 @RequiredArgsConstructor
 public class SpringHandlerRegister implements BeanPostProcessor {
+
     private final HandlerService handlerService;
 
     @EventListener

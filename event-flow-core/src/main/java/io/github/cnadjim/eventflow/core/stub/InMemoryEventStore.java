@@ -2,7 +2,7 @@ package io.github.cnadjim.eventflow.core.stub;
 
 import io.github.cnadjim.eventflow.annotation.Stub;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
-import io.github.cnadjim.eventflow.core.spi.EventStore;
+import io.github.cnadjim.eventflow.core.port.EventStore;
 
 import java.util.Comparator;
 import java.util.List;

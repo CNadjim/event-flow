@@ -1,6 +1,8 @@
-package io.github.cnadjim.eventflow.core.spi;
+package io.github.cnadjim.eventflow.core.port;
 
 import io.github.cnadjim.eventflow.core.domain.message.Event;
+
+import java.util.Collection;
 
 /**
  * Service Provider Interface for event storage.
@@ -29,7 +31,7 @@ public interface EventStore {
      * @param aggregateId The ID of the aggregate whose events should be retrieved
      * @return An Iterable of events for the specified aggregate ID
      */
-    Iterable<Event> findAllByAggregateIdOrderByTimestampAsc(String aggregateId);
+    Collection<Event> findAllByAggregateIdOrderByTimestampAsc(String aggregateId);
 
     /**
      * Finds all events for a specific aggregate ID, ordered by timestamp in ascending order,
@@ -39,5 +41,5 @@ public interface EventStore {
      * @param startFrom The position to start retrieving events from
      * @return An Iterable of events for the specified aggregate ID, starting from the specified position
      */
-    Iterable<Event> findAllByAggregateIdOrderByTimestampAscStartFrom(String aggregateId, int startFrom);
+    Collection<Event> findAllByAggregateIdOrderByTimestampAscStartFrom(String aggregateId, int startFrom);
 }

@@ -1,6 +1,6 @@
 package io.github.cnadjim.eventflow.spring.rabbitmq.starter.listener;
 
-import io.github.cnadjim.eventflow.core.api.FindTopics;
+import io.github.cnadjim.eventflow.core.usecase.FindTopics;
 import io.github.cnadjim.eventflow.spring.rabbitmq.starter.service.RabbitMqService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;

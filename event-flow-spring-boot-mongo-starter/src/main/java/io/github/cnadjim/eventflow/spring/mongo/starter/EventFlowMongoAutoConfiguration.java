@@ -7,5 +7,4 @@ import org.springframework.context.annotation.ComponentScan;
 @AutoConfiguration
 @ComponentScan(basePackageClasses = EventFlowMongoConfiguration.class)
 public class EventFlowMongoAutoConfiguration {
-
 }

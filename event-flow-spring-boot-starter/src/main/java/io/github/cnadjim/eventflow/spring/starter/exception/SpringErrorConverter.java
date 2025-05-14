@@ -2,7 +2,7 @@ package io.github.cnadjim.eventflow.spring.starter.exception;
 
 import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.error.DefaultError;
-import io.github.cnadjim.eventflow.core.spi.ErrorConverter;
+import io.github.cnadjim.eventflow.core.port.ErrorConverter;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.http.HttpStatus;
 

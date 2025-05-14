@@ -1,4 +1,4 @@
-package io.github.cnadjim.eventflow.core.api;
+package io.github.cnadjim.eventflow.core.usecase;
 
 import io.github.cnadjim.eventflow.annotation.UseCase;
 import io.github.cnadjim.eventflow.core.domain.topic.Topic;

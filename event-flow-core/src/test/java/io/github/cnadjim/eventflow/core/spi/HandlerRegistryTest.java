@@ -1,6 +1,7 @@
 package io.github.cnadjim.eventflow.core.spi;
 
 import io.github.cnadjim.eventflow.core.domain.exception.HandlerNotFoundException;
+import io.github.cnadjim.eventflow.core.port.HandlerRegistry;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Spy;
