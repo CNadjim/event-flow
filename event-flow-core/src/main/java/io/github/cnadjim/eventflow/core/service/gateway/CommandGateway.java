@@ -25,7 +25,7 @@ public class CommandGateway implements MessageGateway<Command>, SendCommand {
 
     @Override
     public CompletableFuture<String> send(Command command) {
-        return sendAndSubscribe(command)
+        return sendMessage(command)
                 .thenApplyAsync(MessageResult::payload)
                 .thenApplyAsync(Object::toString);
     }

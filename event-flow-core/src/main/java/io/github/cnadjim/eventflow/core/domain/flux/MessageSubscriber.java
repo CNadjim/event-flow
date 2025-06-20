@@ -8,6 +8,7 @@ public interface MessageSubscriber extends Subscriber<Message> {
 
     Topic topic();
 
+    String handlerName();
 
     default void onError(Throwable throwable) {
 

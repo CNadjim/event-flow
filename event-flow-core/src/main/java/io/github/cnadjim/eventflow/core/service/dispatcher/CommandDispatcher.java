@@ -1,21 +1,21 @@
 package io.github.cnadjim.eventflow.core.service.dispatcher;
 
 import io.github.cnadjim.eventflow.annotation.DomainService;
+import io.github.cnadjim.eventflow.core.domain.aggregate.Aggregate;
 import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageDispatcher;
 import io.github.cnadjim.eventflow.core.domain.flux.MessageSubscriber;
 import io.github.cnadjim.eventflow.core.domain.handler.CommandHandler;
-import io.github.cnadjim.eventflow.core.domain.aggregate.Aggregate;
 import io.github.cnadjim.eventflow.core.domain.message.Command;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
-import io.github.cnadjim.eventflow.core.service.AggregateService;
 import io.github.cnadjim.eventflow.core.port.ErrorConverter;
 import io.github.cnadjim.eventflow.core.port.HandlerRegistry;
 import io.github.cnadjim.eventflow.core.port.MessageBus;
+import io.github.cnadjim.eventflow.core.service.AggregateService;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.Collection;
+import java.util.List;
 
 @Slf4j
 @DomainService
@@ -26,14 +26,6 @@ public class CommandDispatcher implements MessageDispatcher<Command, String> {
     private final HandlerRegistry handlerRegistry;
     private final AggregateService aggregateService;
 
-    /**
-     * Constructs a {@code CommandDispatcher} with the necessary dependencies.
-     *
-     * @param messageBus       The {@link MessageBus} for publishing messages.
-     * @param errorConverter   The {@link ErrorConverter} for converting exceptions to error messages.
-     * @param handlerRegistry  The {@link HandlerRegistry} for retrieving command handlers.
-     * @param aggregateService The {@link AggregateService} for loading and applying aggregate state.
-     */
     public CommandDispatcher(MessageBus messageBus,
                              ErrorConverter errorConverter,
                              HandlerRegistry handlerRegistry,
@@ -64,11 +56,12 @@ public class CommandDispatcher implements MessageDispatcher<Command, String> {
 
         final Aggregate currentAggregateState = aggregateService.loadAggregate(initialAggregateState);
 
-        final Event event = commandHandler.handle(message, currentAggregateState);
+        final List<Event> events = commandHandler.handle(message, currentAggregateState);
 
-        aggregateService.applyNewEvent(currentAggregateState, event);
-
-        messageBus.publish(event);
+        for (Event event : events) {
+            aggregateService.applyNewEvent(currentAggregateState, event);
+            messageBus.publish(event);
+        }
 
         return aggregateId;
     }

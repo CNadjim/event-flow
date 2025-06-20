@@ -5,7 +5,9 @@ import io.github.cnadjim.eventflow.core.domain.exception.HandlerExecutionExcepti
 import io.github.cnadjim.eventflow.core.domain.message.Command;
 import io.github.cnadjim.eventflow.core.domain.message.Event;
 
+import java.util.List;
+
 public interface CommandHandler extends Handler {
 
-    Event handle(Command command, Aggregate aggregate) throws HandlerExecutionException;
+    List<Event> handle(Command command, Aggregate aggregate) throws HandlerExecutionException;
 }

@@ -1,98 +1,84 @@
 package io.github.cnadjim.eventflow.core.domain.flux;
 
-import io.github.cnadjim.eventflow.core.domain.error.Error;
 import io.github.cnadjim.eventflow.core.domain.exception.EventFlowException;
 import io.github.cnadjim.eventflow.core.domain.exception.RequestTimeoutException;
 import io.github.cnadjim.eventflow.core.domain.log.Logger;
 import io.github.cnadjim.eventflow.core.domain.message.Message;
 import io.github.cnadjim.eventflow.core.domain.message.MessageResult;
 import io.github.cnadjim.eventflow.core.domain.topic.MessageResultTopic;
-import io.github.cnadjim.eventflow.core.domain.topic.Topic;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Objects.nonNull;
-
 public interface MessageGateway<MESSAGE extends Message> extends MessagePublisher, MessageConverter<MessageResult>, Logger {
 
-    Integer TIMEOUT_IN_SECOND = 30;
+    int TIMEOUT_SECONDS = 30;
 
     @Override
     default MessageResult convert(Message message) {
         return convert(message, MessageResult.class);
     }
 
-    default void onReceived(MESSAGE message) {
-        logger().debug("[ {} ] [ {} ] Requested", message.id(), message.payloadClassSimpleName());
+    default CompletableFuture<MessageResult> sendMessage(MESSAGE message) {
+        logMessageSent(message);
+        publish(message);
+        return waitForResponse(message);
     }
 
-    default void onResultReceived(MESSAGE message) {
-        logger().debug("[ {} ] [ {} ] Responded", message.id(), message.payloadClassSimpleName());
+    private CompletableFuture<MessageResult> waitForResponse(MESSAGE message) {
+        CompletableFuture<MessageResult> future = new CompletableFuture<>();
+        subscribeToResults(message, future);
+        handleTimeout(message, future);
+        return future;
     }
 
-    default void onResultTimeout(MESSAGE message) {
-        logger().debug("[ {} ] [ {} ] Timed out", message.id(), message.payloadClassSimpleName());
+    private void subscribeToResults(MESSAGE message, CompletableFuture<MessageResult> future) {
+        MessageSubscriber subscriber = new DefaultMessageSubscriber(
+                new MessageResultTopic(message.topic().name()),
+                null,
+                (nextMessage) -> processResponse(message, nextMessage, future),
+                (subscription) -> future.whenComplete((messageResult, throwable) -> subscription.unsubscribe())
+        );
+        subscribe(subscriber);
     }
 
-
-    default boolean consumeNextMessage(MESSAGE message, Message nextMessage, CompletableFuture<MessageResult> completableFuture) {
-        if (nextMessage.id().equals(message.id())) {
-            final MessageResult messageResult = convert(nextMessage);
-
-            onResultReceived(message);
-
-            if (messageResult.isSuccess()) {
-                completableFuture.complete(messageResult);
-            } else {
-                final Error error = messageResult.error();
-                final EventFlowException exception = new EventFlowException(error);
-                completableFuture.completeExceptionally(exception);
-            }
-
-            return true;
-        } else {
+    private boolean processResponse(MESSAGE original, Message response, CompletableFuture<MessageResult> future) {
+        if (!response.id().equals(original.id())) {
             return false;
         }
+
+        logMessageReceived(original);
+
+        MessageResult result = convert(response);
+
+        if (result.isSuccess()) {
+            future.complete(result);
+        } else {
+            future.completeExceptionally(new EventFlowException(result.error()));
+        }
+
+        return true;
     }
 
-    default CompletableFuture<MessageResult> sendAndSubscribe(MESSAGE message) {
-        onReceived(message);
-        publish(message);
-        return subscribeToResult(message);
+    private void handleTimeout(MESSAGE message, CompletableFuture<MessageResult> future) {
+        CompletableFuture.delayedExecutor(TIMEOUT_SECONDS, TimeUnit.SECONDS)
+                .execute(() -> {
+                    if (!future.isDone()) {
+                        logMessageTimeout(message);
+                        future.completeExceptionally(new RequestTimeoutException("Request timed out after " + TIMEOUT_SECONDS + " seconds"));
+                    }
+                });
     }
 
-    default  <T> CompletableFuture<T> withRequestTimeOutException(CompletableFuture<T> future, MESSAGE message) {
-
-        CompletableFuture<T> timeoutFuture = new CompletableFuture<>();
-
-        CompletableFuture.delayedExecutor(TIMEOUT_IN_SECOND, TimeUnit.SECONDS).execute(() -> {
-            if (!future.isDone()) {
-                onResultTimeout(message);
-                final RequestTimeoutException requestTimeoutException = new RequestTimeoutException(String.format("The %s second timeout has expired without result.", TIMEOUT_IN_SECOND));
-                timeoutFuture.completeExceptionally(requestTimeoutException);
-            }
-        });
-
-        future.whenComplete((result, exception) -> {
-            if (nonNull(exception)) {
-                timeoutFuture.completeExceptionally(exception);
-            } else {
-                timeoutFuture.complete(result);
-            }
-        });
-
-        return timeoutFuture;
+    private void logMessageSent(MESSAGE message) {
+        logger().debug("[ {} ] [ {} ] Sent", message.id(), message.payloadClassSimpleName());
     }
 
-    default CompletableFuture<MessageResult> subscribeToResult(MESSAGE message) {
-        final Topic topic = message.topic();
-        final CompletableFuture<MessageResult> completableFuture = new CompletableFuture<>();
-        final MessageSubscriber messageSubscriber = new DefaultMessageSubscriber(
-                new MessageResultTopic(topic.name()),
-                (nextMessage) -> consumeNextMessage(message, nextMessage, completableFuture),
-                (subscription) -> completableFuture.whenCompleteAsync((result, error) -> subscription.unsubscribe()));
-        subscribe(messageSubscriber);
-        return withRequestTimeOutException(completableFuture, message);
+    private void logMessageReceived(MESSAGE message) {
+        logger().debug("[ {} ] [ {} ] Received", message.id(), message.payloadClassSimpleName());
+    }
+
+    private void logMessageTimeout(MESSAGE message) {
+        logger().debug("[ {} ] [ {} ] Timeout", message.id(), message.payloadClassSimpleName());
     }
 }

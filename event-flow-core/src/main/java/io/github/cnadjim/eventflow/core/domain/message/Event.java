@@ -26,7 +26,7 @@ public record Event(String id,
                     Object payload,
                     Instant timestamp,
                     String aggregateId,
-                    MessageTopic topic) implements Message, AggregateIdSupplier, TimestampSupplier, Comparable<Event> {
+                    MessageTopic topic) implements Message, AggregateIdSupplier, TimestampSupplier {
 
     /**
      * Compact constructor for the Event record.
@@ -43,18 +43,5 @@ public record Event(String id,
 
     public Event(Object payload) {
         this(IdSupplier.create(), payload, TimestampSupplier.create(), AggregateIdSupplier.getAggregateId(payload), TopicSupplier.create(payload));
-    }
-
-    /**
-     * Compares this event with another event based on their timestamps.
-     * This allows events to be sorted chronologically.
-     *
-     * @param eventWrapper The event to compare with
-     * @return A negative integer, zero, or a positive integer as this event's timestamp
-     * is less than, equal to, or greater than the specified event's timestamp
-     */
-    @Override
-    public int compareTo(Event eventWrapper) {
-        return timestamp().compareTo(eventWrapper.timestamp());
     }
 }

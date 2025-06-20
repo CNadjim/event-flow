@@ -10,6 +10,7 @@ import java.util.function.Function;
 import static java.util.Objects.isNull;
 
 public record DefaultMessageSubscriber(Topic topic,
+                                       String handlerName,
                                        Function<Message, Boolean> messageConsumer,
                                        Consumer<Subscription> subscriptionConsumer) implements MessageSubscriber {
 
@@ -18,8 +19,8 @@ public record DefaultMessageSubscriber(Topic topic,
         if (isNull(messageConsumer)) throw new BadArgumentException("messageConsumer cannot be null");
     }
 
-    public DefaultMessageSubscriber(Topic topic, Function<Message, Boolean> messageConsumer) {
-        this(topic, messageConsumer, (subscription) -> {
+    public DefaultMessageSubscriber(Topic topic, String handlerName, Function<Message, Boolean> messageConsumer) {
+        this(topic, handlerName, messageConsumer, (subscription) -> {
         });
     }
 

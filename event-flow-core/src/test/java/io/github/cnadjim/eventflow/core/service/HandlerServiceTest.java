@@ -56,39 +56,44 @@ class HandlerServiceTest {
     @Test
     void register_eventHandler_shouldRegisterAndSubscribe() {
         doReturn(String.class).when(mockEventHandler).payloadClass();
+        doReturn(new Object()).when(mockEventHandler).instance();
 
         handlerService.register(mockEventHandler);
 
         verify(handlerRegistry).registerHandler(mockEventHandler);
-        verify(eventDispatcher).subscribe(any(MessageTopic.class));
+        verify(eventDispatcher).subscribeTo(any(MessageTopic.class), any(String.class));
         verify(topicService).save(any(MessageTopic.class));
     }
 
     @Test
     void register_queryHandler_shouldRegisterAndSubscribe() {
         doReturn(Integer.class).when(mockQueryHandler).payloadClass();
+        doReturn(new Object()).when(mockQueryHandler).instance();
 
         handlerService.register(mockQueryHandler);
 
         verify(handlerRegistry).registerHandler(mockQueryHandler);
-        verify(queryDispatcher).subscribe(any(MessageTopic.class));
+        verify(queryDispatcher).subscribeTo(any(MessageTopic.class), any(String.class));
         verify(topicService).save(any(MessageTopic.class));
     }
 
     @Test
     void register_commandHandler_shouldRegisterAndSubscribe() {
         doReturn(Double.class).when(mockCommandHandler).payloadClass();
+        doReturn(new Object()).when(mockCommandHandler).instance();
 
         handlerService.register(mockCommandHandler);
 
         verify(handlerRegistry).registerHandler(mockCommandHandler);
-        verify(commandDispatcher).subscribe(any(MessageTopic.class));
+        verify(commandDispatcher).subscribeTo(any(MessageTopic.class), any(String.class));
         verify(topicService).save(any(MessageTopic.class));
     }
 
     @Test
     void register_eventSourcingHandler_shouldRegister() {
         doReturn(Long.class).when(mockEventSourcingHandler).payloadClass();
+
+        doReturn(new Object()).when(mockEventSourcingHandler).instance();
 
         handlerService.register(mockEventSourcingHandler);
 

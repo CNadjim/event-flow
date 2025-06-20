@@ -5,6 +5,7 @@ import io.github.cnadjim.eventflow.annotation.CommandHandler;
 import io.github.cnadjim.eventflow.annotation.EventHandler;
 import io.github.cnadjim.eventflow.annotation.EventSourcingHandler;
 import io.github.cnadjim.eventflow.annotation.QueryHandler;
+import io.github.cnadjim.eventflow.core.domain.topic.MessageResultTopic;
 import io.github.cnadjim.eventflow.core.usecase.RegisterHandler;
 import io.github.cnadjim.eventflow.core.usecase.ScanObject;
 import io.github.cnadjim.eventflow.core.usecase.ScanPackage;
@@ -82,22 +83,25 @@ public class HandlerService implements RegisterHandler, ScanPackage, ScanObject 
 
         if (isNull(payloadClass)) throw new BadArgumentException("payloadClass cannot be null");
 
+        final String handlerInstanceName = handler.instance().getClass().getSimpleName();
         final MessageTopic messageTopic = new MessageTopic(payloadClass.getSimpleName());
+        final MessageResultTopic messageResultTopic = new MessageResultTopic(payloadClass.getSimpleName());
 
         topicService.save(messageTopic);
+        topicService.save(messageResultTopic);
 
         switch (handler) {
             case io.github.cnadjim.eventflow.core.domain.handler.EventHandler eventHandler -> {
                 handlerRegistry.registerHandler(eventHandler);
-                eventDispatcher.subscribe(messageTopic);
+                eventDispatcher.subscribeTo(messageTopic, handlerInstanceName);
             }
             case io.github.cnadjim.eventflow.core.domain.handler.QueryHandler queryHandler -> {
                 handlerRegistry.registerHandler(queryHandler);
-                queryDispatcher.subscribe(messageTopic);
+                queryDispatcher.subscribeTo(messageTopic, handlerInstanceName);
             }
             case io.github.cnadjim.eventflow.core.domain.handler.CommandHandler commandHandler -> {
                 handlerRegistry.registerHandler(commandHandler);
-                commandDispatcher.subscribe(messageTopic);
+                commandDispatcher.subscribeTo(messageTopic, handlerInstanceName);
             }
             case io.github.cnadjim.eventflow.core.domain.handler.EventSourcingHandler eventSourcingHandler -> {
                 handlerRegistry.registerHandler(eventSourcingHandler);

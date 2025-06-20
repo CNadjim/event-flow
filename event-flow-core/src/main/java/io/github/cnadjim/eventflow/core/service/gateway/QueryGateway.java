@@ -35,7 +35,7 @@ public class QueryGateway implements MessageGateway<Query>, SendQuery {
 
     @Override
     public <QUERY_RESPONSE> CompletableFuture<QUERY_RESPONSE> send(Query query, ResponseType<QUERY_RESPONSE> responseType) {
-        return sendAndSubscribe(query)
+        return sendMessage(query)
                 .thenApplyAsync(MessageResult::payload)
                 .thenApplyAsync(responseType::convert);
     }

@@ -33,7 +33,7 @@ public class EventGateway implements MessageGateway<Event>, SendEvent {
 
     @Override
     public CompletableFuture<Void> send(Event event) {
-        return sendAndSubscribe(event)
+        return sendMessage(event)
                 .thenApplyAsync(messageResult ->  null);
     }
 }
